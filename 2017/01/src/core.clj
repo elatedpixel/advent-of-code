@@ -18,8 +18,7 @@
     (->> (map vector n (drop (bit-shift-right l 1) (cycle n)))
          (reduce (fn [r [a b]] (+ r (if (= a b) a 0))) 0))))
 
-(defn -main []
-  (println (str "Part A: "
-                (sum-matching-pairs (slurp "./input"))))
-  (println (str "Part B: "
-                (sum-matching-circle-pairs (slurp "./input")))))
+(defn -main [input-file]
+  (let [input (slurp input-file)]
+    (println (str "Part A: " (sum-matching-pairs input)))
+    (println (str "Part B: " (sum-matching-circle-pairs input)))))
