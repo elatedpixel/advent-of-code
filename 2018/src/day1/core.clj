@@ -1,4 +1,4 @@
-(ns core
+(ns day1.core
   (:require [clojure.test :as t]))
 
 (defn coerce-input [input-string]
@@ -27,7 +27,7 @@
   (t/is (= 5 (find-repeat-frequency (coerce-input "-6, +3, +8, +5, -6"))))
   (t/is (= 14 (find-repeat-frequency (coerce-input "+7, +7, -2, -7, -4")))))
 
-(t/run-tests 'core)
+(t/run-tests 'day1.core)
 
 (defn -main [input-file]
   (let [input (coerce-input (slurp input-file))]
