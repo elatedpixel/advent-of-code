@@ -35,12 +35,13 @@
 (t/with-test
 
   (defn checksum-common [coll]
-    (second (apply min-key
-                   (fn [[d v]] d)
-                   (for [[i a] (keep-indexed vector coll)
-                         [j b] (keep-indexed vector coll)
-                         :when (not= i j)]
-                     (diff a b)))))
+    (loop [[[error match] & xs]
+           (for [[i a] (keep-indexed vector coll)
+                 [j b] (keep-indexed vector coll)
+                 :when (not= i j)]
+             (diff a b))]
+      (if (= 1 error) match
+          (recur xs))))
 
   (t/is (= "fgij" (checksum-common ["abcde"
                                     "fghij"
