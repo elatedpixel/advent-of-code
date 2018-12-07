@@ -37,9 +37,9 @@
   (defn checksum-common [coll]
     (loop [[[error match] & xs]
            (for [[i a] (keep-indexed vector coll)
-                 [j b] (keep-indexed vector coll)
-                 :when (not= i j)]
-             (diff a b))]
+                      [j b] (keep-indexed vector coll)
+                      :when (not= i j)]
+                  (diff a b))]
       (if (= 1 error) match
           (recur xs))))
 
