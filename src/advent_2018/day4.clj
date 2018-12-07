@@ -1,4 +1,4 @@
-(ns day4.core
+(ns advent-2018.day4
   (:require [clojure.test :refer [with-test is run-tests]]))
 
 (defn str->int [s]

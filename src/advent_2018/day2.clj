@@ -1,4 +1,4 @@
-(ns day2.core
+(ns advent-2018.day2
   (:require [clojure.test :as t]))
 
 (t/with-test
