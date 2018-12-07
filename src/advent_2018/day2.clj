@@ -1,5 +1,6 @@
 (ns advent-2018.day2
-  (:require [clojure.test :as t]))
+  (:require [clojure.test :as t]
+            [clojure.java.io :as io]))
 
 (t/with-test
 
@@ -51,10 +52,10 @@
                                     "axcye"
                                     "wvxyz"]))))
 
-(t/run-tests 'day2.core)
+(t/run-tests 'advent-2018.day2)
 
-(defn -main [input-file]
-  (let [input (clojure.string/split-lines (slurp input-file))]
+(defn -main []
+  (let [input (->> (io/resource "2018/day2.txt") io/reader line-seq)]
     (prn)
     (println (str "Day 2 Part 1: " (time (checksum input))))
     (println (str "Day 2 Part 2: " (time (checksum-common input))))))

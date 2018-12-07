@@ -1,13 +1,13 @@
 (ns advent-2018.day3
-  (:require [clojure.test :refer [with-test is run-tests]]))
+  (:require [clojure.test :refer [with-test is run-tests]]
+            [clojure.java.io :as io]))
 
 (with-test
 
   (defn parse-plan [plan]
-    (->> (re-matches #"\#(\d+) @ (\d+),(\d+): (\d+)x(\d+)" plan)
+    (->> (re-matches #"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)" plan)
          rest
-         (map read-string)
-         vec))
+         (map read-string)))
 
   (is (= [1 1 3 4 4] (parse-plan "#1 @ 1,3: 4x4")))
   (is (= [12 123 304 40 154] (parse-plan "#12 @ 123,304: 40x154"))))
@@ -42,10 +42,10 @@
                                         "#2 @ 3,1: 4x4"
                                         "#3 @ 5,5: 2x2"]))))))
 
-(run-tests 'day3.core)
+(run-tests 'advent-2018.day3)
 
-(defn -main [file-name]
-  (let [input (map parse-plan (clojure.string/split-lines (slurp file-name)))
+(defn -main []
+  (let [input (map parse-plan (line-seq (io/reader (io/resource "2018/day3.txt"))))
         m (build-map input)]
     (prn)
     (println (str "Day 3 Part 1: " (time (find-overlapping m))))

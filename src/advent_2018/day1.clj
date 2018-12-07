@@ -38,7 +38,7 @@
 
 (t/run-tests 'advent-2018.day1)
 
-(defn -main [input-file]
+(defn -main []
   (let [input (coerce-input (slurp (io/resource "2018/day1.txt")))]
     (prn)
     (println (str "Day 1 Part 1: " (time (calibrate-frequencies input))))

@@ -1,5 +1,6 @@
 (ns advent-2018.day4
-  (:require [clojure.test :refer [with-test is run-tests]]))
+  (:require [clojure.test :refer [with-test is run-tests]]
+            [clojure.java.io :as io]))
 
 (defn str->int [s]
   (Integer/parseInt s 10))
@@ -77,9 +78,9 @@
     (prn minute, count)
     (* guard minute)))
 
-(run-tests 'day4.core)
+(run-tests 'advent-2018.day4)
 
-(defn -main [file-name]
-  (let [input (make-sleep-map (map parse-log (sort (clojure.string/split-lines (slurp file-name)))))]
+(defn -main []
+  (let [input (make-sleep-map (map parse-log (line-seq (io/reader (io/resource "2018/day4.txt")))))]
     (prn)
     (println (str "Day 4 Part 1: " (time (strategy-1 input))))))
