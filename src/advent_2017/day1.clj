@@ -1,4 +1,5 @@
-(ns core)
+(ns advent-2017.day1
+  (:require [clojure.java.io :as io]))
 
 (defn parse-numbers [s]
   (loop [n (read-string s)
@@ -18,7 +19,7 @@
     (->> (map vector n (drop (bit-shift-right l 1) (cycle n)))
          (reduce (fn [r [a b]] (+ r (if (= a b) a 0))) 0))))
 
-(defn -main [input-file]
-  (let [input (slurp input-file)]
+(defn -main []
+  (let [input (slurp (io/resource "2017/day1.txt"))]
     (println (str "Part A: " (sum-matching-pairs input)))
     (println (str "Part B: " (sum-matching-circle-pairs input)))))

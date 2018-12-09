@@ -5,6 +5,9 @@
 (defn str->int [s]
   (Integer/parseInt s 10))
 
+(defn map-vals [m f]
+  (reduce-kv (fn [r k v] (assoc r k (f v)))))
+
 (with-test
 
   (defn parse-log [s]
