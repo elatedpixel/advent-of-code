@@ -30,7 +30,7 @@
     (juxt first #(Integer/parseInt (apply str (rest %)))))
   (is (= [\R 103] (parse-instruction "R103"))))
 
-(defn day1 [data]
+(defn part1 [data]
   (distance
    (:position
     (last
@@ -45,7 +45,7 @@
       {:facing :north :position [0 0]}
       (map parse-instruction data))))))
 
-(defn day2 [data]
+(defn part2 [data]
   (distance
    (:position
     (last
@@ -66,7 +66,7 @@
 (def data (s/split (slurp (io/resource "2016/day1.txt")) #"\W+"))
 
 (defn -main []
-  (time (println (day1 data)))
-  (time (println (day2 data))))
+  (time (println (part1 data)))
+  (time (println (part2 data))))
 
 #_(run-tests 'advent-2016.day1)
