@@ -2,26 +2,28 @@
   (:require [clojure.java.io :as io]))
 
 (def input
-  (->> (io/resource "2019/day1.txt")
-       (io/reader)
-       (line-seq)
+  (->> "2019/day1.txt"
+       io/resource
+       io/reader
+       line-seq
        (map #(Integer/parseInt %))))
 
-(defn part1 [module]
-  (- (int (/ module 3)) 2))
+(defn fuel [mass]
+  (- (quot mass 3) 2))
 
-(defn part2 [module]
-  (->> module
-       (iterate part1)
+(defn part1 [masses]
+  (reduce + (map fuel masses)))
+
+(defn total-fuel [mass]
+  (->> mass
+       (iterate fuel)
        (take-while pos?)
-       (drop 1)
+       rest
        (reduce +)))
 
-(defn -main []
-  (time (println (reduce + (map part1 input))))
-  (time (println (reduce + (map part2 input)))))
+(defn part2 [masses]
+  (reduce + (map total-fuel masses)))
 
-(comment
-  (part2 100756)
-  ;; => 50346
-  )
+(defn -main []
+  (time (println (part1 input)))
+  (time (println (part2 input))))
