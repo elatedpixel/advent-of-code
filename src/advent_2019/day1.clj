@@ -12,7 +12,7 @@
   (- (quot mass 3) 2))
 
 (defn part1 [masses]
-  (reduce + (map fuel masses)))
+  (transduce (map fuel) + masses))
 
 (defn total-fuel [mass]
   (->> mass
@@ -22,7 +22,7 @@
        (reduce +)))
 
 (defn part2 [masses]
-  (reduce + (map total-fuel masses)))
+  (transduce (map total-fuel) + masses))
 
 (defn -main []
   (time (println (part1 input)))
