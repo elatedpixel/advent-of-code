@@ -36,6 +36,12 @@
   (t/is (= [2 4 4 5 99 9801] (sort-by-keys (computer (input->map [2 4 4 5 99 0])))))
   (t/is (= [30 1 1 4 2 5 6 0 99] (sort-by-keys (computer (input->map [1 1 1 4 99 5 6 0 99]))))))
 
+(defn part1 [m]
+  ((computer (-> m
+                 (assoc 1 12)
+                 (assoc 2 2)))
+   0))
+
 (defn part2 [m]
   (some #(if (= 19690720 ((second %) 0)) (first %))
         (pmap (fn [[a b]]
@@ -48,8 +54,5 @@
 (t/run-tests 'advent-2019.day2)
 
 (defn -main []
-  (time (println ((computer (-> input
-                                input->map
-                                (assoc 1 12)
-                                (assoc 2 2))) 0)))
+  (time (println (part1 (input->map input))))
   (time (println (part2 (input->map input)))))
