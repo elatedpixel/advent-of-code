@@ -21,63 +21,36 @@
    \U [0 1]})
 
 (with-test
+
   (defn trace
-    [{:keys [current-location wire-path steps total-steps]} [direction n]]
-    (let [traced (reductions #(map + %1 %2) current-location
-                             (repeat n (move direction)))]
-      {:wire-path        (into wire-path traced)
-       :current-location (last traced)
-       :steps            (merge
-                          (zipmap traced
-                                  (take (count traced) (iterate inc total-steps)))
-                          steps)
-       :total-steps      (+ total-steps (count traced) -1)}))
-  (is (= {:wire-path        (set '((0 103) (1 103) (2 103) (3 103)))
-          :steps            {'(0 103) 0 '(1 103) 1 '(2 103) 2 '(3 103) 3}
-          :current-location '(3 103)
-          :total-steps      3}
-         (trace {:current-location '(0 103)
-                 :total-steps      0
-                 :steps            {}
-                 :wire-path        #{}}
-                [\R 3]))))
+    [wire-path [direction n]]
+    (concat wire-path
+            (rest
+             (reductions #(map + %1 %2)
+                         (last wire-path)
+                         (repeat n (move direction))))))
+
+  (is (= '((0 103) (1 103) (2 103) (3 103))
+         (trace '((0 103)) [\R 3]))))
+
+(def tracer (partial transduce (map path) (completing trace)))
 
 (comment
+  (time
+   (let [paths         (map #(rest (tracer '((0 0)) %)) input)
+         intersections (apply clojure.set/intersection (map set paths))]
 
-  ;; part 1
-  (apply min-key
-         distance
-         (clojure.set/difference
-          (->> input
-               (map #(:wire-path
-                      (transduce (map path)
-                                 (completing trace)
-                                 {:current-location '(0 0)
-                                  :total-steps      0
-                                  :steps            {}
-                                  :wire-path        #{}}
-                                 %)))
-               (apply clojure.set/intersection))
-          #{'(0 0)}))
-  ;; => (245 0)
+     ;; part 1
+     (println (apply min-key distance intersections))
+     ;; => (245 0)
 
-  ;; part 2
-  (let [[wire1 wire2]
-        (map #(transduce (map path)
-                         (completing trace)
-                         {:current-location '(0 0)
-                          :total-steps      0
-                          :steps            {}
-                          :wire-path        #{}}
-                         %) input)]
-    (#(+ ((:steps wire1) %) ((:steps wire2) %))
-     (apply min-key
-            #(+ ((:steps wire1) %) ((:steps wire2) %))
-            (clojure.set/difference
-             (clojure.set/intersection
-              (:wire-path wire1) (:wire-path wire2))
-             #{'(0 0)}))))
-  ;; => 48262
+     ;; part 2
+     (println (+ (count paths)          ; because we skip the origin in all paths
+                 (->> intersections
+                      (map (fn [v] (apply + (map #(.indexOf % v) paths))))
+                      (apply min))))
+     ;; => 48262
+     ))
 
   ;; formatting hax
   )
