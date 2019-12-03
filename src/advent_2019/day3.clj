@@ -24,13 +24,10 @@
 
   (defn trace
     [wire-path [direction n]]
-    (->> direction
-         move
-         (repeat n)
-         (reductions #(map + %1 %2)
-                     (last wire-path))
-         rest
-         (concat wire-path)))
+    (concat wire-path
+            (rest (reductions #(map + %1 %2)
+                              (last wire-path)
+                              (repeat n (move direction))))))
 
   (is (= '((0 103) (1 103) (2 103) (3 103))
          (trace '((0 103)) [\R 3]))))
