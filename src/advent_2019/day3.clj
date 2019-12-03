@@ -24,11 +24,13 @@
 
   (defn trace
     [wire-path [direction n]]
-    (concat wire-path
-            (rest
-             (reductions #(map + %1 %2)
-                         (last wire-path)
-                         (repeat n (move direction))))))
+    (->> direction
+         move
+         (repeat n)
+         (reductions #(map + %1 %2)
+                     (last wire-path))
+         rest
+         (concat wire-path)))
 
   (is (= '((0 103) (1 103) (2 103) (3 103))
          (trace '((0 103)) [\R 3]))))
@@ -42,17 +44,18 @@
 
      ;; part 1
      (println (apply min-key distance intersections))
-     ;; => (245 0)
 
      ;; part 2
      (println (+ (count paths)          ; because we skip the origin in all paths
                  (->> intersections
                       (map (fn [v] (apply + (map #(.indexOf % v) paths))))
                       (apply min))))
-     ;; => 48262
      ))
 
-  ;; formatting hax
+  ;; (245 0)
+  ;; 48262
+  ;; "Elapsed time: 14871.189122 msecs"
+
   )
 
 (run-tests 'advent-2019.day3)
