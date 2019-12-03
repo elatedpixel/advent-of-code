@@ -1,6 +1,6 @@
 # advent-of-code
 
-[Advent of Code]() solutions from 2016 - 2019
+[Advent of Code](https://adventofcode.com/) solutions from 2016 - 2019
 
 ## Current completion
 
