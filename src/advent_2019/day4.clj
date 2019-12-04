@@ -7,11 +7,13 @@
   (= 6 (count (str n))))
 
 (defn contains-contiguous-duplicate? [n]
-  (some (fn [[a b]] (= a b)) (partition 2 1 (str n))))
+  (some (fn [[a b]] (= a b))
+        (partition 2 1 (str n))))
 
 (defn contains-contiguous-unique-duplicate? [n]
   (let [counts (frequencies (str n))]
-    (some (fn [[a b]] (and (= a b) (= 2 (counts a)))) (partition 2 1 (str n)))))
+    (some (fn [[a b]] (and (= a b) (= 2 (counts a))))
+          (partition 2 1 (str n)))))
 
 (defn increasing-order? [n]
   (apply <= (map int (str n))))
