@@ -10,8 +10,10 @@
   (+ (Math/abs x) (Math/abs y)))
 
 (with-test
+
   (def path
     (juxt first #(Integer/parseInt (apply str (rest %)))))
+
   (is (= [\R 103] (path "R103"))))
 
 (def move
@@ -36,7 +38,7 @@
 
 (comment
   (time
-   (let [paths         (map #(rest (tracer '((0 0)) %)) input)
+   (let [paths         (map #(rest (transduce (map path) (completing trace) '((0 0)) %)) input)
          intersections (apply clojure.set/intersection (map set paths))]
 
      ;; part 1

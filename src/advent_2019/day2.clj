@@ -56,3 +56,46 @@
 (defn -main []
   (time (println (part1 (input->map input))))
   (time (println (part2 (input->map input)))))
+
+(comment
+
+  "Hello thanks for your comment! I'd be happy to explain it a bit."
+
+  (defn computer
+    "Accept an intcode program as a map and return the values after evaluating the opcodes."
+
+    "This is the 1-arity definition of the function, it continuously
+    calls the 2-arity definition of the function with the evolving
+    value of `program` and an ever-increasing value for `i`."
+    ([program] (reduce computer program (range)))
+
+    "For example:"
+
+    ;; (reductions advent-2019.day2/computer (advent-2019.day2/input->map [1 1 1 4 99 5 6 0 99]) (range))
+    ;; ({0 1, 1 1, 2 1, 3 4, 4 99, 5 5, 6 6, 7 0, 8 99}
+    ;;  {0 1, 1 1, 2 1, 3 4, 4 2, 5 5, 6 6, 7 0, 8 99}
+    ;;  {0 30, 1 1, 2 1, 3 4, 4 2, 5 5, 6 6, 7 0, 8 99}
+    ;;  {0 30, 1 1, 2 1, 3 4, 4 2, 5 5, 6 6, 7 0, 8 99})
+
+    "There you can see the intermediary states of the program as each iteration applies an opcode"
+
+    "This is the 2-arity definition and applies the `i`-th opcode and it's
+    parameters deconstructed into `[op a b r]`."
+    ([program i]
+     (let [[op a b r] (nth (partition-all 4 4 (sort-by-keys program)) i)]
+       (if (= 99 op)
+         (reduced program)
+         (assoc program r ((opcode op) (program a) (program b)))))))
+
+  "Where `partition-all` gives output:"
+
+  ;; (partition-all 4 4 [1 1 1 4 99 5 6 0 99])
+  ;; ((1 1 1 4) (99 5 6 0) (99))
+
+  "So `nth` `i` of that partition:"
+
+  ;; (nth *1 1)
+  ;; (99 5 6 0)
+
+  "`sort-by-keys` just sorts a map's values according to their keys, and that's all the magic!"
+  )
