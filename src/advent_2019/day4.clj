@@ -29,11 +29,11 @@
               increasing-order?))
 
 (defn part1 []
-  (time (println (count (filter valid-password-part1? input)))))
+  (count (filter valid-password-part1? input)))
 ;; 1019
 ;; "Elapsed time: 2540.0887 msecs"
 
 (defn part2 []
-  (time (println (count (filter valid-password-part2? input)))))
+  (count (filter valid-password-part2? input)))
 ;; 660
 ;; "Elapsed time: 3388.1456 msecs"
