@@ -28,8 +28,8 @@
         modes               (reverse (format "%03d" (quot instr 100)))
         [mode-a mode-b]     (map vector modes [a b])]
     (-> state
-       (assoc-in [:program address] (* (value program mode-a) (value program mode-b)))
-       (update :pointer + 4))))
+        (assoc-in [:program address] (* (value program mode-a) (value program mode-b)))
+        (update :pointer + 4))))
 
 (defmethod execute 3 [{:keys [pointer program] :as state}]
   (let [input (Integer/parseInt (read-line))
@@ -47,18 +47,18 @@
           (update :pointer + 2)))))
 
 (defmethod execute 5 [{:keys [pointer program] :as state}]
-  (let [[instr a jump] (subvec program pointer (+ pointer 3))
-        modes               (reverse (format "%03d" (quot instr 100)))
-        [mode-a mode-jump]     (map vector modes [a jump])]
+  (let [[instr a jump]     (subvec program pointer (+ pointer 3))
+        modes              (reverse (format "%03d" (quot instr 100)))
+        [mode-a mode-jump] (map vector modes [a jump])]
     (-> state
         (assoc :pointer (if (not (zero? (value program mode-a)))
                           (value program mode-jump)
                           (+ 3 pointer))))))
 
 (defmethod execute 6 [{:keys [pointer program] :as state}]
-  (let [[instr a jump] (subvec program pointer (+ pointer 3))
-        modes               (reverse (format "%03d" (quot instr 100)))
-        [mode-a mode-jump]     (map vector modes [a jump])]
+  (let [[instr a jump]     (subvec program pointer (+ pointer 3))
+        modes              (reverse (format "%03d" (quot instr 100)))
+        [mode-a mode-jump] (map vector modes [a jump])]
     (-> state
         (assoc :pointer (if (zero? (value program mode-a))
                           (value program mode-jump)
@@ -69,7 +69,7 @@
         modes               (reverse (format "%03d" (quot instr 100)))
         [mode-a mode-b]     (map vector modes [a b])]
     (-> state
-        (assoc-in [:program address] (if (< a b) 1 0))
+        (assoc-in [:program address] (if (< (value program mode-a) (value program mode-b)) 1 0))
         (update :pointer + 4))))
 
 (defmethod execute 8 [{:keys [pointer program] :as state}]
@@ -77,7 +77,7 @@
         modes               (reverse (format "%03d" (quot instr 100)))
         [mode-a mode-b]     (map vector modes [a b])]
     (-> state
-        (assoc-in [:program address] (if (= a b) 1 0))
+        (assoc-in [:program address] (if (= (value program mode-a) (value program mode-b)) 1 0))
         (update :pointer + 4))))
 
 (t/with-test
