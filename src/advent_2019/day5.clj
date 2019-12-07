@@ -1,4 +1,3 @@
-
 (ns advent-2019.day5
   (:require [advent-2019.core :refer [read-lines]]
             [clojure.test :as t]))
