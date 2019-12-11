@@ -30,9 +30,11 @@
                     (clojure.set/intersection (set you-path) (set san-path))))))
 
 (comment
-  (part1)
+  (time (part1))
+  "Elapsed time: 57.145011 msecs"
   ;; => 160040
 
-  (part2)
+  (time (part2))
+  "Elapsed time: 10.713636 msecs"
   ;; => 373
   )
