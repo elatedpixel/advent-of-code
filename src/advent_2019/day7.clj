@@ -11,6 +11,15 @@
        read-string
        vec))
 
+(def phase-settings
+  (for [a (range 5)
+        b (range 5)
+        c (range 5)
+        d (range 5)
+        e (range 5)
+        :when (= 5 (count (set (list a b c d e))))]
+    (list a b c d e)))
+
 (defn start [& inputs]
   (computer {:halt?   false
              :input   inputs
