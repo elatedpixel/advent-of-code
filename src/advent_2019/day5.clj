@@ -13,7 +13,8 @@
        vec))
 
 (defn -main []
-  (time (run (input (make-intcode data) 1))))
+  (time (<!! (:out (run (input (make-intcode data) 1)))))
+  (time (<!! (:out (run (input (make-intcode data) 5))))))
 
 (t/deftest test-simple-program
   ; output whatever the input is

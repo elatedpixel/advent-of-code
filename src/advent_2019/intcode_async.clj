@@ -20,7 +20,12 @@
     \0 (program (program index))
     \1 (program index)))
 
-(defn intcode [{:keys [program ptr in out halted?]}]
+(def bool->int
+  {true  1
+   false 0
+   nil   0})
+
+(defn intcode [{:keys [program ptr diagnostic in out halted?]}]
   (let [p          @ptr
         [op modes] (instruction (program p))
         value      (fn [i m] (value-by-mode @program i m))]
@@ -38,19 +43,36 @@
       3  (dosync
           (alter program assoc (program (inc p)) (<!! in))
           (alter ptr + 2))
-      4  (do
-           (println "outputting" (value (inc p) (modes 0)))
-           (go (>! out (value (inc p) (modes 0))))
-           (dosync
-            (alter ptr + 2)))
+      4  (dosync
+          (ref-set diagnostic (value (inc p) (modes 0)))
+          (alter ptr + 2))
+      5  (dosync
+          (if (not (zero? (value (inc p) (modes 0))))
+            (ref-set ptr (value (+ 2 p) (modes 1)))
+            (alter ptr + 3)))
+      6  (dosync
+          (if (zero? (value (inc p) (modes 0)))
+            (ref-set ptr (value (+ 2 p) (modes 1)))
+            (alter ptr + 3)))
+      7  (dosync
+          (alter program assoc (program (+ 3 p))
+                 (bool->int (< (value (+ 1 p) (modes 0))
+                               (value (+ 2 p) (modes 1)))))
+          (alter ptr + 4))
+      8  (dosync
+          (alter program assoc (program (+ 3 p))
+                 (bool->int (= (value (+ 1 p) (modes 0))
+                               (value (+ 2 p) (modes 1)))))
+          (alter ptr + 4))
       99 (dosync (ref-set halted? true)
+                 (go (>! out @diagnostic))
                  (alter ptr inc)))))
 
 (defprotocol Computer
   (run [this])
   (input [this value]))
 
-(defrecord Intcode [program ptr in out halted?]
+(defrecord Intcode [program ptr diagnostic in out halted?]
   Computer
   (run [this]
     (while (not @(:halted? this))
@@ -65,5 +87,5 @@
               :or   {ptr 0
                      in  (chan)
                      out (chan)}}]
-  (->Intcode (ref intcode) (ref ptr) in out (ref false)))
+  (->Intcode (ref intcode) (ref ptr) (ref 0) in out (ref false)))
 
