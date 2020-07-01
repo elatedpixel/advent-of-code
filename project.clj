@@ -7,4 +7,5 @@
                  [org.clojure/test.check "0.9.0"]
                  [org.clojure/math.combinatorics "0.1.6"]
                  [org.clojure/core.async "1.2.603"]
-                 [clj-time "0.15.1"]])
+                 [clj-time "0.15.1"]
+                 [digest "1.4.9"]])

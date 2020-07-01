@@ -1,49 +1,62 @@
 (ns advent-2016.day5
-  (:require [clojure.java.io :as io])
-  (:import java.security.MessageDigest
-           java.math.BigInteger))
-
-(defn md5 [s]
-  (let [algorithm (MessageDigest/getInstance "MD5")
-        raw (.digest algorithm (.getBytes s))]
-    (format "%032x" (BigInteger. 1 raw))))
-
-(defn get-next-password-character [s]
-  (if (.startsWith s "00000")
-    (get s 5)
-    nil))
-
-(defn get-password [s]
-  (keep get-next-password-character
-        (map (comp md5 (partial str s)) (range))))
-
-(def code (atom {}))
-(defn get-code [s]
-  (if-let [[found? position character] (re-matches #"^[0]{5}(\d)(\S).*$" s)]
-    (let [i (Integer/parseInt position)]
-      (if (and
-           (not (@code i))
-           (<= 0 i 7))
-        (swap! code assoc i character)))))
-
-(defn hashes
-  ([s] (hashes s 0))
-  ([s n] (lazy-seq (cons (md5 (str s n)) (hashes s (inc n))))))
+  (:require [clojure.java.io :as io]
+            [digest :refer (md5)]))
 
 (def data
   (-> "2016/day5.txt"
       io/resource
       io/reader
-      line-seq
-      first))
+      slurp))
+
+(defn get-password [s]
+  (transduce
+   (comp
+    (map #(md5 (str s %)))
+    (filter #(= "00000" (subs % 0 5)))
+    (map #(nth % 5))
+    (take 8))
+   conj
+   []
+   (range)))
+
+(defn distinct-by [f]
+  (fn [xf]
+    (let [seen (volatile! #{})]
+      (fn
+        ([] (xf))
+        ([result] (xf result))
+        ([result input]
+         (if (@seen (f input))
+           result
+           (do
+             (vswap! seen conj (f input))
+             (xf result input))))))))
+
+(defn get-password-2 [s]
+  (transduce
+   (comp
+    (map #(md5 (str s %)))
+    (filter #(and
+              (= "00000" (subs % 0 5))
+              (> 8 (Integer/parseInt (subs % 5 6) 16))))
+    (map (juxt #(Integer/parseInt (subs % 5 6) 16)
+               #(nth % 6)))
+    (distinct-by first)
+    (take 8))
+   conj
+   []
+   (range)))
 
 (defn -main []
-  #_(time (println (take 8 (get-password data))))
-  (time (println (->> data
-                      hashes
-                      (keep get-code)
-                      (take-while (fn [_] (not (every? @code (range 4)))))
-                      #_(sort-by key)
-                      #_(map second)))))
+  (time (get-password data))
+  ;; "Elapsed time: 48706.07252 msecs"
+  ;; => [\8 \1 \5 \5 \7 \7 \b \e]
+                                        ;
+
+  (time (let [codes (into {} (get-password-2 "ojvtpuvg"))]
+          (vals (sort-by key codes))))
+  ;; "Elapsed time: 109745.577176 msecs"
+  ;; => (\1 \0 \5 \0 \c \b \b \d)
+  )
 
 #_(-main)

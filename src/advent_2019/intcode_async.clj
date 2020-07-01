@@ -88,4 +88,3 @@
                      in  (chan)
                      out (chan)}}]
   (->Intcode (ref intcode) (ref ptr) (ref 0) in out (ref false)))
-
