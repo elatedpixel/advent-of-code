@@ -1,5 +1,6 @@
 (ns advent-2016.day7
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clojure.test :as t]))
 
 (def data
   (-> "2016/day7.txt"
@@ -11,15 +12,22 @@
   (and (= a d)
        (= b c)))
 
-(defn tls?
-  ([ip]
-   (some mirrored? (partition 4 1 ip)))
-  ([found? ip hypernet]
-   (and found?
-        (and (tls? ip)
-             (not (tls? hypernet))))))
+(defn tls? [ip]
+  (boolean (some mirrored? (partition 4 1 ip))))
 
-(comment (map tls? (map #(re-seq #"(\w+)|\[(\w+)\]" %) (take 30 data)))
+(defn tls-rf
+  [supports-tls? [found? ip hypernet]]
+  (if (and (some? hypernet) (tls? hypernet))
+    (reduced false)
+    (or supports-tls? (and (some? ip) (tls? ip)))))
+
+(defn split-ip [s]
+  (re-seq #"(\w+)|\[(\w+)\]" s))
+
+(comment (->> data
+              (map split-ip)
+              (filter #(reduce tls-rf false %))
+              count)
 
          ;; => ("rhamaeovmbheijj[hkwbkqzlcscwjkyjulk]ajsxfuemamuqcjccbc")
 
@@ -27,4 +35,10 @@
          ;;      ["[hkwbkqzlcscwjkyjulk]" nil "hkwbkqzlcscwjkyjulk"]
          ;;      ["ajsxfuemamuqcjccbc" "ajsxfuemamuqcjccbc" nil]))
                                         ;
+
+
+         (autonomous-bridge-bypass-annotation? "rhamaeovmbheijj[hkwbkqzlcscwjkyjulk]ajsxfuemaamuqcjccbc")
+                                        ;
          )
+
+(t/run-tests 'advent-2016.day7)
