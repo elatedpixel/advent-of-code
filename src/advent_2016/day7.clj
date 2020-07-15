@@ -1,5 +1,6 @@
 (ns advent-2016.day7
   (:require [clojure.java.io :as io]
+            [clojure.string :as s]
             [clojure.test :as t]))
 
 (def data
@@ -8,36 +9,52 @@
       io/reader
       line-seq))
 
-(defn mirrored? [[a b c d]]
+(defn abba? [[a b c d]]
   (and (= a d)
-       (= b c)))
+       (= b c)
+       (not= a b)))
 
-(defn tls? [ip]
-  (boolean (some mirrored? (partition 4 1 ip))))
+(defn tls? [[outside-brackets inside-brackets]]
+  (and (some abba? (mapcat #(partition 4 1 %) outside-brackets))
+       (not (some abba? (mapcat #(partition 4 1 %) inside-brackets)))))
 
-(defn tls-rf
-  [supports-tls? [found? ip hypernet]]
-  (if (and (some? hypernet) (tls? hypernet))
-    (reduced false)
-    (or supports-tls? (and (some? ip) (tls? ip)))))
-
-(defn split-ip [s]
-  (re-seq #"(\w+)|\[(\w+)\]" s))
-
-(comment (->> data
-              (map split-ip)
-              (filter #(reduce tls-rf false %))
-              count)
-
-         ;; => ("rhamaeovmbheijj[hkwbkqzlcscwjkyjulk]ajsxfuemamuqcjccbc")
-
-         ;; => ((["rhamaeovmbheijj" "rhamaeovmbheijj" nil]
-         ;;      ["[hkwbkqzlcscwjkyjulk]" nil "hkwbkqzlcscwjkyjulk"]
-         ;;      ["ajsxfuemamuqcjccbc" "ajsxfuemamuqcjccbc" nil]))
+(comment
+  ;; part 1
+  (time (count (sequence
+                (comp
+                 (map #(s/split % #"\W"))
+                 (map (juxt #(take-nth 2 %) #(take-nth 2 (rest %))))
+                 (filter tls?))
+                data)))
                                         ;
+  )
 
+(defn aba? [[a b c]]
+  (and (= a c)
+       (not= a b)))
 
-         (autonomous-bridge-bypass-annotation? "rhamaeovmbheijj[hkwbkqzlcscwjkyjulk]ajsxfuemaamuqcjccbc")
+(defn ssl? [[outside-brackets inside-brackets]]
+  (seq (clojure.set/intersection
+    (into #{}
+          (comp (mapcat #(partition 3 1 %))
+                (filter aba?)
+                (map (fn [[a b c]] (str b a b))))
+          outside-brackets)
+    (into #{}
+          (comp (mapcat #(partition 3 1 %))
+                (filter aba?)
+                (map #(apply str %)))
+          inside-brackets))))
+
+(comment
+  ;; part 2
+  (time
+   (count (sequence
+     (comp
+      (map #(s/split % #"\W"))
+      (map (juxt #(take-nth 2 %) #(take-nth 2 (rest %))))
+      (filter ssl?))
+     data)))
                                         ;
          )
 
