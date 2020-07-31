@@ -1,7 +1,8 @@
 (ns advent-2016.day7
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
-            [clojure.test :as t]))
+            [clojure.test :as t]
+            [clojure.set]))
 
 (def data
   (-> "2016/day7.txt"
