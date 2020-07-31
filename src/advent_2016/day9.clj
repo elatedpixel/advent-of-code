@@ -1,5 +1,7 @@
 (ns advent-2016.day9
-  (:require [clojure.test :as t]))
+  (:require [clojure.test :as t]
+            [clojure.java.io :as io]
+            [clojure.string :as str]))
 
 (t/with-test
 
@@ -52,3 +54,11 @@ A(2x2)BCD(2x2)EFG doubles the BC and EF, becoming ABCBCDEFEFG for a decompressed
   )
 
 (t/run-tests 'advent-2016.day9)
+
+(defn -main []
+  (let [data (-> "2016/day9.txt"
+                 io/resource
+                 io/reader
+                 slurp)]
+
+    (time (println (count (decompress data))))))
