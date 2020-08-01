@@ -19,46 +19,42 @@
          (cons (first s)
                (decompress (subs s 1)))))))
 
-  (t/testing "ADVENT contains no markers and decompresses to itself with no changes, resulting in a decompressed length of 6."
-    (let [input    "advent"
-          actual   (decompress input)
-          expected (seq input)]
-      (t/is (= expected actual))))
+  (t/are [input expected] (= expected (count (decompress input)))
+    ;; ADVENT contains no markers and decompresses to itself with no changes,
+    ;; resulting in a decompressed length of 6.
+    "advent" 6
 
-  (t/testing "A(1x5)BC repeats only the B a total of 5 times, becoming ABBBBBC for a decompressed length of 7."
-    (let [input    "A(1x5)BC"
-          actual   (decompress input)
-          expected (seq "ABBBBBC")]
-      (t/is (= expected actual))))
+    ;; A(1x5)BC repeats only the B a total of 5 times, becoming ABBBBBC for a
+    ;; decompressed length of 7.
+    "A(1x5)BC" 7
 
-  (t/testing "(3x3)XYZ becomes XYZXYZXYZ for a decompressed length of 9.
-A(2x2)BCD(2x2)EFG doubles the BC and EF, becoming ABCBCDEFEFG for a decompressed length of 11."
-    (let [input    "(3x3)XYZ"
-          actual   (decompress input)
-          expected (seq "XYZXYZXYZ")]
-      (t/is (= expected actual))))
+    ;; (3x3)XYZ becomes XYZXYZXYZ for a decompressed length of 9.
+    "(3x3)XYZ" 9
 
-  (t/testing "(6x1)(1x3)A simply becomes (1x3)A - the (1x3) looks like a marker, but because it's within a data section of another marker, it is not treated any differently from the A that comes after it. It has a decompressed length of 6."
-    (let [input    "(6x1)(1x3)A"
-          actual   (decompress input)
-          expected (seq "(1x3)A")]
-      (t/is (= expected actual))))
+    ;; A(2x2)BCD(2x2)EFG doubles the BC and EF, becoming ABCBCDEFEFG for a
+    ;; decompressed length of 11.
+    "A(2x2)BCD(2x2)EFG" 11
 
-  (t/testing "X(8x2)(3x3)ABCY becomes X(3x3)ABC(3x3)ABCY (for a decompressed length of 18), because the decompressed data from the (8x2) marker (the (3x3)ABC) is skipped and not processed further."
-    (let [input    "X(8x2)(3x3)ABCY"
-          actual   (decompress input)
-          expected (seq "X(3x3)ABC(3x3)ABCY")]
-      (t/is (= expected actual))))
+    ;; (6x1)(1x3)A simply becomes (1x3)A - the (1x3) looks like a marker, but
+    ;; because it's within a data section of another marker, it is not treated
+    ;; any differently from the A that comes after it. It has a decompressed
+    ;; length of 6.
+    "(6x1)(1x3)A" 6
+
+    ;; X(8x2)(3x3)ABCY becomes X(3x3)ABC(3x3)ABCY (for a decompressed length of
+    ;; 18), because the decompressed data from the (8x2) marker (the (3x3)ABC)
+    ;; is skipped and not processed further.
+    "X(8x2)(3x3)ABCY" 18)
 
                                         ;
   )
 
-(t/run-tests 'advent-2016.day9)
-
 (defn -main []
   (let [data (-> "2016/day9.txt"
                  io/resource
-                 io/reader
-                 slurp)]
+                 slurp
+                 str/trim)]
 
     (time (println (count (decompress data))))))
+
+(t/run-tests 'advent-2016.day9)

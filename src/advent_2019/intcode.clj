@@ -1,17 +1,15 @@
 (ns advent-2019.intcode
-  (:require [clojure.test :as t]))
+  (:require [clojure.test :as t]
+            [clojure.core.async :as a :refer [<! >! chan]]))
 
 (defn instruction [n]
   [(rem n 100) (vec (reverse (format "%03d" (quot n 100))))])
 
-(defn value-by-mode [program index mode]
-  (case mode
-    \0 (program (program index))
-    \1 (program index)))
-
 (defn execute [{:keys [program pointer input] :as state}]
   (let [[op modes] (instruction (program pointer))
-        value      (fn [i m] (value-by-mode program i m))]
+        value      (fn [i m] (case m
+                               \0 (program (program i))
+                               \1 (program i)))]
     (case op
       1 (-> (assoc-in state [:program (program (+ 3 pointer))]
                       (+ (value (+ 1 pointer) (modes 0))
@@ -59,4 +57,3 @@
   )
 
 (t/run-tests 'advent-2019.intcode)
-
