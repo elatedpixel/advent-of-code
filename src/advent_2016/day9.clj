@@ -49,12 +49,64 @@
                                         ;
   )
 
+(t/with-test
+
+  (defn decompress-recursive-length [s]
+    (if (seq s)
+      (if-let [[matched? m n] (re-find #"^\((\d+)x(\d+)\)" s)]
+       (let [subsequent-letters (Integer/parseInt m)
+             repeat-count       (Integer/parseInt n)
+             skip               (count matched?)
+             text               (subs s skip (+ skip subsequent-letters))]
+         (+ (* repeat-count (decompress-recursive-length text))(decompress-recursive-length (subs s (+ skip subsequent-letters)))))
+       (+ 1 (decompress-recursive-length (subs s 1))))
+      0))
+
+  ;; (defn decompress-recursive [s]
+  ;;   (when (seq s)
+  ;;     (if-let [[matched? n x] (re-find #"^\((\d+)x(\d+)\)" s)]
+  ;;       (let [subsequent-letters (Integer/parseInt n)
+  ;;             repeat-count       (Integer/parseInt x)
+  ;;             skip               (count matched?)]
+  ;;         (lazy-cat
+  ;;          (flatten (repeat repeat-count (decompress-recursive (subs s skip (+ skip subsequent-letters)))))
+  ;;          (decompress-recursive (subs s (+ skip subsequent-letters)))))
+  ;;       (lazy-seq
+  ;;        (cons (first s)
+  ;;              (decompress-recursive (subs s 1))))))   )
+
+  (t/are [input expected] (= expected (decompress-recursive-length input))
+    ;; (3x3)XYZ still becomes XYZXYZXYZ, as the decompressed section contains no
+    ;; markers. (9)
+    "(3x3)XYZ" 9
+
+    ;; X(8x2)(3x3)ABCY becomes XABCABCABCABCABCABCY, because the decompressed data
+    ;; from the (8x2) marker is then further decompressed, thus triggering the
+    ;; (3x3) marker twice for a total of six ABC sequences. (20)
+    "X(8x2)(3x3)ABCY" 20
+
+    ;; (27x12)(20x12)(13x14)(7x10)(1x12)A decompresses into a string of A repeated
+    ;; 241920 times.
+    "(27x12)(20x12)(13x14)(7x10)(1x12)A" 241920
+
+    ;; (25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN becomes 445
+    ;; characters long.
+    "(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN" 445
+                                        ;
+    )
+                                        ;
+  )
+
 (defn -main []
   (let [data (-> "2016/day9.txt"
                  io/resource
                  slurp
                  str/trim)]
 
-    (time (println (count (decompress data))))))
+    ; part 1
+    (time (println (count (decompress data))))
+
+    ; part 2
+    (time (println (decompress-recursive-length data)))))
 
 (t/run-tests 'advent-2016.day9)
