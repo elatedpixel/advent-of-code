@@ -62,19 +62,6 @@
        (+ 1 (decompress-recursive-length (subs s 1))))
       0))
 
-  ;; (defn decompress-recursive [s]
-  ;;   (when (seq s)
-  ;;     (if-let [[matched? n x] (re-find #"^\((\d+)x(\d+)\)" s)]
-  ;;       (let [subsequent-letters (Integer/parseInt n)
-  ;;             repeat-count       (Integer/parseInt x)
-  ;;             skip               (count matched?)]
-  ;;         (lazy-cat
-  ;;          (flatten (repeat repeat-count (decompress-recursive (subs s skip (+ skip subsequent-letters)))))
-  ;;          (decompress-recursive (subs s (+ skip subsequent-letters)))))
-  ;;       (lazy-seq
-  ;;        (cons (first s)
-  ;;              (decompress-recursive (subs s 1))))))   )
-
   (t/are [input expected] (= expected (decompress-recursive-length input))
     ;; (3x3)XYZ still becomes XYZXYZXYZ, as the decompressed section contains no
     ;; markers. (9)
