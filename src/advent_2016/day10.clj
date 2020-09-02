@@ -67,17 +67,19 @@
   )
 
 (comment
-  (doseq [instruction data]
-    (build-operation instruction))
+  (time (doseq [instruction data]
+     (build-operation instruction)))
+  "Elapsed time: 1.715687 msecs"
 
   ;; part 1
-  (filter #(= (list 17 61) (rest %)) (get-comparisons))
+  (time (filter #(= (list 17 61) (rest %)) (get-comparisons)))
+  "Elapsed time: 0.145077 msecs"
   ;; => ([[:bot 181] 17 61])
 
   ;; part 2
-  (reduce * (map poll! (vals (select-keys (:output (get-context)) [0 1 2]))))
+  (time (reduce * (map poll! (vals (select-keys (:output (get-context)) [0 1 2])))))
+  "Elapsed time: 0.199153 msecs"
   ;; => 12567
 
                                         ;
   )
-
