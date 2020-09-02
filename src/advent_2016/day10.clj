@@ -3,86 +3,81 @@
             [clojure.spec.alpha :as s]
             [clojure.spec.test.alpha :as t]
             [clojure.spec.gen.alpha :as gen]
+            [clojure.core.async :refer [go >!! >! <! <!! chan poll!]]
             [clojure.java.io :as io]))
 
-(s/def ::actor #{'bot 'output})
-(s/def ::hilo #{'low 'high})
+(def rule-regex #"bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d+)")
+(def value-regex #"value (\d+) goes to bot (\d+)")
 
-(s/def ::deliver-value
-  (s/cat :_ #{'value}
-         :value int?
-         :_ #{'goes}
-         :_ #{'to}
-         :to-actor ::actor
-         :id int?))
-
-(s/def ::bot-give
-  (s/cat :_ #{'gives 'and}
-         :high-or-low ::hilo
-         :_ #{'to}
-         :to-actor ::actor
-         :id int?))
-
-(s/def ::bot-distribution
-  (s/cat :from-actor ::actor
-         :from-id int?
-         :low ::bot-give
-         :high ::bot-give))
-
-(s/def ::bot-instruction
-  (s/alt :input ::deliver-value
-         :output ::bot-distribution))
+(defn make-instruction
+  ([match? value-string id-string]
+   {:type  :value
+    :value (Integer/parseInt value-string)
+    :path  [:bot (Integer/parseInt id-string)]})
+  ([match? from-id-string low-type-string low-id-string high-type-string high-id-string]
+   {:type      :rule
+    :from-path [:bot (Integer/parseInt from-id-string)]
+    :low-path  [(keyword low-type-string) (Integer/parseInt low-id-string)]
+    :high-path [(keyword high-type-string) (Integer/parseInt high-id-string)]}))
 
 (def parser
   (comp
-   (map #(str "[" % "]"))
-   (map edn/read-string)
-   (map #(s/conform ::bot-instruction %))))
+   (map (some-fn
+         (partial re-matches rule-regex)
+         (partial re-matches value-regex)))
+   (map (partial apply make-instruction))))
 
 (def data
   (sequence
    parser
    (line-seq (io/reader (io/resource "2016/day10.txt")))))
 
-(def context (atom {}))
+(let [context (atom (transduce
+                     (comp
+                      (mapcat (some-fn (comp :path vector) (juxt :from-path :low-path :high-path)))
+                      (distinct))
+                     (completing (fn [m path] (assoc-in m path (chan 10))))
+                     {}
+                     data))
+      comparisons (atom [])]
 
-(defn evaluate [path]
-  @(get-in @context path))
+  (defn channel-for-path [path]
+    (get-in @context path))
 
-(defmulti process-instruction first)
-(defmethod process-instruction :input [_ {:keys [value to-actor id]}]
-  (update-in context [to-actor id] conj (delay value)))
-(defmethod process-instruction :output [_ {:keys [from-actor from-id low high]}]
-  (let [[l h] (get-in @context [from-actor from-id])]
-    (-> context
-        (assoc-in [(:to-actor low) (:id low)] l)
-        (assoc-in [(:to-actor high) (:id high)] h))))
+  (defmulti build-operation :type)
+
+  (defmethod build-operation :value [{:keys [path value]}]
+    (>!! (channel-for-path path) value))
+
+  (defmethod build-operation :rule [{:keys [from-path low-path high-path]}]
+    (go
+      (let [from-chan (channel-for-path from-path)
+            a         (<! from-chan)
+            b         (<! from-chan)
+            low       (min a b)
+            high      (max a b)]
+        (do
+          (swap! comparisons conj [from-path low high])
+          (>! (get-in @context low-path) low)
+          (>! (get-in @context high-path) high)))))
+
+  (defn get-context [] @context)
+  (defn get-comparisons [] @comparisons)
+                                        ; end of context closure
+  )
 
 (comment
-  (doseq [instruction (take 2 data)]
-    (println instruction)
-    (process-instruction instruction))
+  (doseq [instruction data]
+    (build-operation instruction))
 
-  (first data)
-;; => [:output
-;;     {:from-actor bot,
-;;      :from-id 49,
-;;      :low {:_ to, :high-or-low low, :to-actor bot, :to-actor-value 118},
-;;      :high {:_ to, :high-or-low high, :to-actor bot, :to-actor-value 182}}]
+  ;; part 1
+  (filter #(= (list 17 61) (rest %)) (get-comparisons))
+  ;; => ([[:bot 181] 17 61])
+
+  ;; part 2
+  (reduce * (map poll! (vals (select-keys (:output (get-context)) [0 1 2]))))
+  ;; => 12567
+
                                         ;
   )
 
-(comment
-  (def rule-regex #"bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d+)")
-  (def value-regex #"value (\d+) goes to bot (\d+)")
-
-  (or (re-matches rule-regex "bot 49 gives low to bot 118 and high to bot 182")
-      (re-matches value-regex "bot 49 gives low to bot 118 and high to bot 182"))
-
-  "bot 49 gives low to bot 118 and high to bot 182"
-
-  "bot 195 gives low to output 4 and high to bot 130"
-
-  "value 61 goes to bot 49"
-  ;; 
-  )
