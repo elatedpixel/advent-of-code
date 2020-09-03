@@ -32,13 +32,20 @@
    parser
    (line-seq (io/reader (io/resource "2016/day10.txt")))))
 
-(let [context (atom (transduce
-                     (comp
-                      (mapcat (some-fn (comp :path vector) (juxt :from-path :low-path :high-path)))
-                      (distinct))
-                     (completing (fn [m path] (assoc-in m path (chan 10))))
-                     {}
-                     data))
+(def paths-from-instructions-xf
+  (comp
+   (mapcat (some-fn (comp :path vector)
+                    (juxt :from-path :low-path :high-path)))
+   (distinct)))
+
+(defn channels-for-paths
+  [m path] (assoc-in m path (chan 10)))
+
+(let [context
+      (atom (transduce paths-from-instructions-xf
+                       (completing channels-for-paths)
+                       {}
+                       data))
       comparisons (atom [])]
 
   (defn channel-for-path [path]
@@ -58,8 +65,8 @@
             high      (max a b)]
         (do
           (swap! comparisons conj [from-path low high])
-          (>! (get-in @context low-path) low)
-          (>! (get-in @context high-path) high)))))
+          (>! (channel-for-path low-path) low)
+          (>! (channel-for-path high-path) high)))))
 
   (defn get-context [] @context)
   (defn get-comparisons [] @comparisons)
@@ -68,7 +75,7 @@
 
 (comment
   (time (doseq [instruction data]
-     (build-operation instruction)))
+          (build-operation instruction)))
   "Elapsed time: 1.715687 msecs"
 
   ;; part 1
