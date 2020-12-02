@@ -7,16 +7,28 @@
         (line-seq (io/reader (io/resource "2020/day01")))))
 
 (comment
-  (doseq [n input]
-    (when-let [pair (input (- 2020 n))]
-      (println n "x" pair "=" (* n pair))))
+  (time
+   (take 1
+         (for [a     input
+               :let  [b (- 2020 a)]
+               :when (and (not= a b) (boolean (input b)))]
+           (* a b))))
+
+  "Elapsed time: 0.360913 msecs"
+  ;; => (970816)
                                         ;part 1
   )
 
 (comment
-  (doseq [a input]
-    (doseq [b (remove #{a} input)]
-      (when-let [c ((set (remove #{a b} input)) (- 2020 a b))]
-        (println a "x" b "x" c "=" (* a b c)))))
+  (time
+   (take 1
+         (for [a     input
+               b     input
+               :let  [c (- 2020 a b)]
+               :when (and (not= a b c) (boolean (input c)))]
+           (* a b c))))
+
+  "Elapsed time: 0.248882 msecs"
+  ;; => (96047280)
                                         ;part 2
   )
