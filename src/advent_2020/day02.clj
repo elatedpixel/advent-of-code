@@ -25,7 +25,7 @@
 
                                         ;part 2
   (letfn [(valid-password? [[index-a index-b letter password]]
-            "a valid `password` has `letter` at `index-a` or `index-b`"
+            "a valid `password` has `letter` at `index-a` xor `index-b`"
             (let [a (get password (dec (Integer/parseInt index-a)))
                   b (get password (dec (Integer/parseInt index-b)))
                   c (first letter)]
