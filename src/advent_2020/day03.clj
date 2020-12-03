@@ -7,32 +7,34 @@
 (defn- shape [v]
   (vector (count v) (count (first v))))
 
-(defn- trees-on-slope [slope]
+(defn- trees-on-slope [slopes]
   (let [[rows columns] (shape input)]
     (count
      (sequence
       (comp
        (take-while #(< (first %) rows))
-       (map (fn [[row column]] (vector row (mod column columns))))
-       (map (fn [coordinate] (get-in input coordinate)))
+       (map (fn [[row column]] (get-in input [row (mod column columns)])))
        (filter #{\#}))
-      slope))))
+      slopes))))
 
 (defn- generate-slope [slope]
   (iterate #(mapv + slope %) [0 0]))
 
 (comment
   ;; part 1
-  (trees-on-slope (generate-slope [1 3]))
+  (time (trees-on-slope (generate-slope [1 3])))
+  ;; "Elapsed time: 1.28739 msecs"
   ;; => 209
 
   ;; part 2
-  (transduce
-   (comp
-    (map generate-slope)
-    (map trees-on-slope))
-   *
-   [[1 1] [1 3] [1 5] [1 7] [2 1]])
+  (time
+   (transduce
+    (comp
+     (map generate-slope)
+     (map trees-on-slope))
+    *
+    [[1 1] [1 3] [1 5] [1 7] [2 1]]))
+  ;; "Elapsed time: 4.333387 msecs"
   ;; => 1574890240
                                         ;
   )
