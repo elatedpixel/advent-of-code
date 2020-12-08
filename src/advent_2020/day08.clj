@@ -33,7 +33,7 @@
   (loop [state    {:pointer     0
                    :accumulator 0}
          executed #{}]
-    (let [{:keys [pointer accumulator] :as state'} state]
+    (let [{:keys [pointer accumulator]} state]
       (cond
         (executed pointer)            {:status      :looped
                                        :accumulator accumulator}
