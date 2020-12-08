@@ -8,5 +8,6 @@
                  [org.clojure/math.combinatorics "0.1.6"]
                  [org.clojure/core.async "1.2.603"]
                  [org.clojure/core.logic "1.0.0"]
+                 [instaparse "1.4.10"]
                  [clj-time "0.15.1"]
                  [digest "1.4.9"]])
