@@ -44,13 +44,23 @@
 
 ;; part 1
 (comment
-  (execute commands))
+  (time (execute commands))
+  ;; => {:status :looped, :accumulator 1675}
+  ;; "Elapsed time: 0.366489 msecs"
+                                        ;
+  )
 
 ;; part 2
 (comment
   ;; there are only 224 jmp ops and 52 nop ops so let's just iterate!
-  (let [experiments (filter (fn [[k [op _]]] (#{:jmp :nop} op)) commands)]
-    (for [[index [op number]] experiments
-          :let [output (execute (update-in commands [index 0] #(if (= :jmp %) :nop :jmp)))]
-          :when (= :done (:status output))]
-      [index output])))
+  (time
+   (let [experiments (filter (fn [[k [op _]]] (#{:jmp :nop} op)) commands)]
+     (for [[index [op number]] experiments
+           :let [output (execute (update-in commands [index 0] {:jmp :nop
+                                                                :nop :jmp}))]
+           :when (= :done (:status output))]
+       [index output])))
+  ;; => ([195 {:status :done, :accumulator 1532}])
+  ;; "Elapsed time: 1.326506 msecs"
+                                        ;
+  )
