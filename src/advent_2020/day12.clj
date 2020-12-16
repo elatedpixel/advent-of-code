@@ -50,25 +50,35 @@ F11")
      (+ (Math/abs S) (Math/abs N))))
 
 (defn- follow-instructions
-  [instructions]
+  [instructions state]
   (transduce
    (map (fn [[matched? op-string n-string]]
           {:operation (op (keyword op-string))
            :value     (Integer/parseInt n-string)}))
    (completing (fn [ship {:keys [operation value]}]
                  (operation ship value)))
-   {:coord [0 0] :facing [0 1]}
+   state
    (parse-navigation instructions)))
 
 ;; part 1
 (comment
   (let [input (slurp (io/resource "2020/day12"))]
-    (time (println (follow-instructions input)))))
+    (time (println (follow-instructions input {:coord [0 0] :facing [0 1]})))))
 
 ;; part 2
 (comment
+  (defn turn [coord offset]
+    (nth (iterate (fn [[y x]] [x (- y)]) coord) offset))
+
   (defn op [operation]
     (case operation
+      :R (fn [ship value] (update ship :waypoint turn (quot value 90)))
+      :L (fn [ship value] (update ship :waypoint turn (- 4 (quot value 90))))
       :F (fn [ship value] (update ship :coord coord+ (coord* value (:waypoint ship))))
       (:E :W :S :N) (fn [ship value] (update ship :waypoint coord+ (coord* value (direction operation))))))
+
+  (with-redefs [op op
+                turn turn]
+    (let [input (slurp (io/resource "2020/day12"))]
+      (time (println (follow-instructions input {:coord [0 0] :waypoint [-1 10]})))))
   )
