@@ -26,17 +26,17 @@
                           (map (fn [pair] (apply range pair))))))]))
 
 (time (def data
-   (->> ((comp line-seq io/reader io/resource) "2018/day4.txt")
-        (map (juxt (some-fn
-                    (partial re-seq #"Guard")
-                    (partial re-seq #"falls")
-                    (partial re-seq #"wakes"))
-                   #(map (fn [n] (Integer/parseInt n)) (re-seq #"\d+" %))))
-        parse-logs
-        (remove #(= (:type %) :guard))
-        (group-by :id)
-        sleep-intervals
-        (into {}))))
+       (->> ((comp line-seq io/reader io/resource) "2018/day4.txt")
+            (map (juxt (some-fn
+                        (partial re-seq #"Guard")
+                        (partial re-seq #"falls")
+                        (partial re-seq #"wakes"))
+                       #(map (fn [n] (Integer/parseInt n)) (re-seq #"\d+" %))))
+            parse-logs
+            (remove #(= (:type %) :guard))
+            (group-by :id)
+            sleep-intervals
+            (into {}))))
 (println "Parsed data..")
 
 #_(run-tests 'advent-2018.day4)

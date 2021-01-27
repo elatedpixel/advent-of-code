@@ -16,11 +16,11 @@
 (t/with-test
 
   #_(defn find-repeat-frequency [frequencies]
-    (loop [list (cycle frequencies)
-           seen #{}
-           val 0]
-      (if (seen val) val
-          (recur (rest list) (conj seen val) (+ val (first list))))))
+     (loop [list (cycle frequencies)
+            seen #{}
+            val 0]
+       (if (seen val) val
+           (recur (rest list) (conj seen val) (+ val (first list))))))
 
   ;; https://github.com/bhauman/advent-of-clojure/blob/master/src/advent-2018/day01.clj
   ;; thanks Bruce - learning a lot from you
