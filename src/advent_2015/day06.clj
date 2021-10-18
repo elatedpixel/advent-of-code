@@ -21,15 +21,28 @@
 
 (comment
   (reduce
-   +'
-   (vals
-    (transduce
-     (mapcat parse-instruction)
-     (completing (fn [grid f] (f grid)))
-     {}
-     input)))
+    +'
+    (vals
+      (transduce
+        (mapcat parse-instruction)
+        (completing (fn [grid f] (f grid)))
+        {}
+        input))))
   ;; 569999
+
+(comment
+  (with-redefs [perform (fn [instruction]
+                          (case instruction
+                            "toggle"   (fnil (comp inc inc) 0)
+                            "turn on"  (fnil inc 0)
+                            "turn off" (fnil (comp #(max 0 %) dec) 0)))]
+    (reduce
+     +'
+     (vals
+       (transduce
+         (mapcat parse-instruction)
+         (completing (fn [grid f] (f grid)))
+         {}
+         input))))
+;; => 17836115
   )
-
-
-
