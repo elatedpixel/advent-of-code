@@ -10,5 +10,6 @@
                  [org.clojure/core.logic "1.0.0"]
                  [org.clojure/data.priority-map "1.0.0"]
                  [instaparse "1.4.10"]
+                 [cheshire "5.10.1"]
                  [clj-time "0.15.1"]
                  [digest "1.4.9"]])

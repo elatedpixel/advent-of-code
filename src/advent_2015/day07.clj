@@ -1,5 +1,6 @@
 (ns advent-2015.day07
-  (:require [clojure.edn :as edn]
+  (:require [advent.core :as c]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
             [clojure.spec.test.alpha :as t]
@@ -50,14 +51,17 @@
                   f (op (:operator tree-or-val))]
               (f l r))))
 
-(defn evaluate-expr! [{:keys [lhs rhs]}]
+(defn evaluate-expr! [context {:keys [lhs rhs]}]
   (swap! context assoc rhs (delay (evaluate* lhs))))
 
 (defn parse-expression [s] (s/conform ::expression (edn/read-string (format "[%s]" s))))
 
 (defn evaluate-lines! [expressions]
   (doseq [expression expressions]
-    (evaluate-expr! expression)))
+    (evaluate-expr! context expression)))
+
+(def c (atom {}))
+(def machine (->DelayMachine c))
 
 (comment
   (do
