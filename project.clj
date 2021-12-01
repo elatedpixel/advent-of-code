@@ -12,4 +12,5 @@
                  [instaparse "1.4.10"]
                  [cheshire "5.10.1"]
                  [clj-time "0.15.1"]
-                 [digest "1.4.9"]])
+                 [digest "1.4.9"]
+                 [criterium "0.4.4"]])
