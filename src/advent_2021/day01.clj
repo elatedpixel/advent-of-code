@@ -4,20 +4,17 @@
 (def input
   (map #(Integer/parseInt %) (load-input 2021 1)))
 
+(defn count-by [pred coll]
+  (reduce +
+          (map (comp {false 0 true 1} pred)
+               coll
+               (rest coll))))
+
 ;; part 1
-(comment
-  (transduce
-    (keep (fn [[a b]] (when (< a b) 1)))
-    +
-    (partition 2 1 input));; => 1709
-;
-  )
+(count-by < input)
+;; => 1709
 
 ;; part 2
-(comment
-  (->> (partition 3 1 input)
-       (map #(reduce + %))
-       (partition 2 1)
-       (reduce (fn [x [a b]] (+ x (if (< a b) 1 0))) 0));; => 1761
-;
-  )
+(let [sliding-sum (map + input (rest input) (rest (rest input)))]
+  (count-by < sliding-sum))
+;; => 1761
