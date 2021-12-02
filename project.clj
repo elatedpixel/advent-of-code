@@ -9,8 +9,9 @@
                  [org.clojure/core.async "1.2.603"]
                  [org.clojure/core.logic "1.0.0"]
                  [org.clojure/data.priority-map "1.0.0"]
+                 [com.rpl/specter "1.1.3"]
                  [instaparse "1.4.10"]
                  [cheshire "5.10.1"]
                  [clj-time "0.15.1"]
-                 [digest "1.4.9"]
-                 [criterium "0.4.4"]])
+                 [criterium "0.4.4"]
+                 [digest "1.4.9"]])
