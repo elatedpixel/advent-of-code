@@ -60,9 +60,6 @@
   (doseq [expression expressions]
     (evaluate-expr! context expression)))
 
-(def c (atom {}))
-(def machine (->DelayMachine c))
-
 (comment
   (do
     (evaluate-lines! (sequence (map parse-expression) input))
