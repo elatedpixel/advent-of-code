@@ -3,19 +3,22 @@
 
 (def input (load-input 2021 2))
 
+;; commands in the input text
 (declare ^:dynamic forward)
 (declare ^:dynamic down)
 (declare ^:dynamic up)
 
+;; variables modified by commands
 (declare ^:dynamic aim)
 (declare ^:dynamic depth)
 (declare ^:dynamic horizontal)
 
+;; format commands as s-expressions
+(def commands (map (comp read-string (partial format "(%s)")) input))
+
 (defn execute-commands [commands]
   (doseq [command commands]
-   (eval command)))
-
-(def commands (map (comp read-string (partial format "(%s)")) input))
+    (eval command)))
 
 ;; part 1
 (binding [forward (fn [n] (swap! horizontal + n))
