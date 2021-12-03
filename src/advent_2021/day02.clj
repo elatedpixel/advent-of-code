@@ -1,44 +1,37 @@
 (ns advent-2021.day02
-  (:require [advent.core :refer [load-input]]))
+  (:require
+   [advent.core :refer [load-input string->sexpression]]))
 
 (def input (load-input 2021 2))
+(def commands (map string->sexpression input))
 
-;; commands in the input text
-(declare ^:dynamic forward)
-(declare ^:dynamic down)
-(declare ^:dynamic up)
+(def initial-state
+  {:horizontal 0
+   :depth      0
+   :aim        0})
 
-;; variables modified by commands
-(declare ^:dynamic aim)
-(declare ^:dynamic depth)
-(declare ^:dynamic horizontal)
+(defn pilot-submarine [pilot]
+  (reduce pilot initial-state commands))
 
-;; format commands as s-expressions
-(def commands (map (comp read-string (partial format "(%s)")) input))
+(defn distance [{:keys [horizontal depth]}]
+  (* horizontal depth))
 
-(defn execute-commands [commands]
-  (doseq [command commands]
-    (eval command)))
+(defn silver-pilot [position [command x]]
+  (case command
+    forward (update position :horizontal + x)
+    down    (update position :depth + x)
+    up      (update position :depth - x)))
 
-;; part 1
-(binding [forward (fn [n] (swap! horizontal + n))
-          down (fn [n] (swap! depth + n))
-          up (fn [n] (swap! depth - n))
-          horizontal (atom 0)
-          depth (atom 0)]
-  (do (execute-commands commands)
-      (* @horizontal @depth)))
-;; => 1636725
+;; silver
+(distance (pilot-submarine silver-pilot));; => 1636725
 
-;; part 2
-(binding [forward (fn [n] (do
-                            (swap! horizontal + n)
-                            (swap! depth + (* @aim n))))
-          down (fn [n] (swap! aim + n))
-          up (fn [n] (swap! aim - n))
-          horizontal (atom 0)
-          depth (atom 0)
-          aim (atom 0)]
-  (do (execute-commands commands)
-      (* @horizontal @depth)))
-;; => 1872757425
+(defn gold-pilot [{:keys [aim] :as position} [command x]]
+  (case command
+    forward (-> position
+                (update :horizontal + x)
+                (update :depth + (* aim x)))
+    down    (update position :aim + x)
+    up      (update position :aim - x)))
+
+;; gold
+(distance (pilot-submarine gold-pilot));; => 1872757425

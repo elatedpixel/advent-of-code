@@ -5,6 +5,9 @@
 (defn load-input [year day]
   (line-seq (io/reader (io/resource (format "%d/day%02d" year day)))))
 
+(defn string->sexpression
+  [s] (read-string (str "(" s ")")))
+
 (defprotocol ContextMachine
   (learn! [this learning-sequence learn-fn])
   (resolve* [this context-key]))
