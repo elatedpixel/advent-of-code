@@ -8,6 +8,8 @@
 (defn string->sexpression
   [s] (read-string (str "(" s ")")))
 
+(defn key-by [f selector] (fn [m] (key (apply f selector m))))
+
 (defprotocol ContextMachine
   (learn! [this learning-sequence learn-fn])
   (resolve* [this context-key]))
