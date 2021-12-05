@@ -15,18 +15,19 @@
 (defn- bingo? [called-numbers]
   (letfn [(check [xs] (every? (partial contains? called-numbers) xs))]
     (fn [board]
-      (or (some check board)
-         (some check (apply map list board))))))
+      (when (or (some check board)
+                (some check (apply map list board)))
+        board))))
 
 (defn- score [board called-numbers]
   (transduce
-    (filter (complement (partial contains? called-numbers)))
-    +
-    (flatten board)))
+   (filter (complement (partial contains? called-numbers)))
+   +
+   (flatten board)))
 
 (defn call-number [called-numbers n]
   (let [called (conj called-numbers n)]
-    (if-let [winner (some #(when ((bingo? called) %) %) bingo-boards)]
+    (if-let [winner (some (bingo? called) bingo-boards)]
       (reduced (* n (score winner called)))
       called)))
 
@@ -38,14 +39,14 @@
 ;; => 72770
 
 (defn- win-last [numbers]
-  (loop [[n & numbers] numbers
-         boards (set bingo-boards)
-         winners []
+  (loop [[n & numbers]  numbers
+         boards         (set bingo-boards)
+         winners        []
          called-numbers #{}]
     (if (empty? boards)
       (last winners)
       (let [called (conj called-numbers n)
-            bingos (into #{} (keep #(when ((bingo? called) %) %)) boards)]
+            bingos (into #{} (keep (bingo? called)) boards)]
         (recur numbers
                (remove bingos boards)
                (into winners (mapv #(* n (score % called)) bingos))
