@@ -28,16 +28,10 @@
 ;;    Execution time upper quantile : 325.400332 µs (97.5%)
 ;;                    Overhead used : 4.086691 ns
 
-;; Found 1 outliers in 6 samples (16.6667 %)
-;;  low-severe	 1 (16.6667 %)
-;;  Variance from outliers : 13.8889 % Variance is moderately inflated by outliers
 
 ;; gold
 (quick-bench (fish-produced-by-day input 256))
 ;; => 1595779846729
-;; Found 1 outliers in 6 samples (16.6667 %)
-;;  low-severe	 1 (16.6667 %)
-;;  Variance from outliers : 81.3502 % Variance is severely inflated by outliers
 ;; Evaluation count : 672 in 6 samples of 112 calls.
 ;;              Execution time mean : 898.095746 µs
 ;;     Execution time std-deviation : 8.709001 µs
