@@ -1,8 +1,6 @@
 (ns advent-2021.day07
   (:require [advent.core :refer (load-input string->sexpression)]))
 
-(def example (string->sexpression "16,1,2,0,4,2,7,1,2,14"))
-
 (def input (string->sexpression (first (load-input 2021 7))))
 
 (defn sum [xs] (reduce +' xs))
