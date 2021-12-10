@@ -50,9 +50,10 @@
                (filter (complement seen) (mapcat neighbors expand))
                (into result expand))))))
 
-(->> (low-points)
-     (map (comp count basin first))
-     (sort >)
-     (take 3)
-     (reduce * 1))
+(time (->> (low-points)
+      (map (comp count basin first))
+      (sort >)
+      (take 3)
+      (reduce * 1)))
 ;; => 900864
+;; "Elapsed time: 93.043306 msecs"
