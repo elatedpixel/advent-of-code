@@ -8,12 +8,9 @@
   (mapv (partial mapv (comp read-string str)) string))
 
 (defn lava-tubes->map [coll]
-  (into {}
-        (apply
-         concat
-         (map-indexed
-          (fn [i row]
-            (map-indexed (fn [j col] [[i j] col]) row)) coll))))
+  (into {} (apply concat
+                  (map-indexed
+                    (fn [i row] (map-indexed (fn [j col] [[i j] col]) row)) coll))))
 
 (defn offsets [[i j]]
   [[(dec i) j] [(inc i) j] [i (dec j)] [i (inc j)]])
@@ -39,6 +36,13 @@
 (risk (low-points))
 ;; => 607
 
+(let [input (parse input)]
+  (def board
+   (into {}
+         (for [i (range (count input))
+               j (range (count (input i)))]
+           [[i j] ((input i) j)]))))
+
 (defn basin [pos]
   (loop [seen     #{pos}
          frontier (neighbors pos)
@@ -51,9 +55,9 @@
                (into result expand))))))
 
 (time (->> (low-points)
-      (map (comp count basin first))
-      (sort >)
-      (take 3)
-      (reduce * 1)))
+           (map (comp count basin first))
+           (sort >)
+           (take 3)
+           (reduce * 1)))
 ;; => 900864
 ;; "Elapsed time: 93.043306 msecs"
