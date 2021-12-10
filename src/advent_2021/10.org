@@ -1,0 +1,31 @@
+#+title: Advent of Code 2021 Day 10
+#+property: results value
+
+#+begin_src clojure
+  (require '[advent.core :refer (load-input)])
+
+  (def input
+    (mapv (partial mapv (comp read-string str))
+          (load-input 2021 9)))
+
+  (def board
+    (into {}
+          (for [i (range (count input))
+                j (range (count (input i)))]
+            [[i j] ((input i) j)])))
+
+  (board [0 0])
+#+end_src
+
+#+RESULTS:
+| #'advent-2021.day09/input                                                                                                                                                                                 |
+| [9 8 9 7 6 5 6 7 8 9 8 6 5 4 6 7 8 9 5 6 9 8 7 6 5 4 6 9 8 9 9 9 8 8 6 7 2 1 3 4 5 9 8 8 9 4 3 4 5 6 8 9 8 6 4 1 0 1 3 7 8 9 6 5 4 5 7 9 3 2 3 4 9 9 4 3 2 1 0 9 8 7 6 5 4 7 8 9 6 5 3 1 9 8 7 8 9 4 3 4] |
+| #'advent-2021.day09/board                                                                                                                                                                                 |
+| 9                                                                                                                                                                                                         |
+
+#+begin_src clojure
+  (count input)
+#+end_src
+
+#+RESULTS:
+: 100
