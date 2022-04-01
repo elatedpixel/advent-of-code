@@ -10,6 +10,19 @@
 (defn filter-key-by-val [pred m]
   (for [[k v] m :when (pred v)] k))
 
+(defn map-vals [m f]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defn remove-keys [m pred]
+  (select-keys m (filter (complement pred) (keys m))))
+
+(defn dijkstra [g start]
+  (loop [q (priority-map start 0) r {}]
+    (if-let [[v d] (peek q)]
+      (let [dist (-> (g v) (remove-keys r) (map-vals (partial + d)))]
+        (recur (merge-with min (pop q) dist) (assoc r v d)))
+      r)))
+
 (defn string->sexpression
   [s] (read-string (str "(" s ")")))
 
