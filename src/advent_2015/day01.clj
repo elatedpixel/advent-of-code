@@ -17,15 +17,17 @@
 
 (test/with-test
   (defn first-basement-trip [input]
-    (some
-     (fn [[i x]] (when (= -1 x) i))
-     (reductions (fn [[i x] c] [(inc i) (+ x (elevator c))])
-                 [0 0]
-                 input)))
+    (first
+     (reduce
+      (fn [[i x] c]
+        (if (neg? x) (reduced [i x])
+            [(inc i) (+ x (elevator c))]))
+      [0 0]
+      input)))
 
   (test/is (= 1 (first-basement-trip ")")))
   (test/is (= 5 (first-basement-trip "()())"))))
 
 (time (println "day 1 part 2" (first-basement-trip (slurp (io/resource "2015/day01")))))
 
-(test/run-tests 'advent-2015.day01)
+#_(test/run-tests 'advent-2015.day01)

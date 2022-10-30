@@ -23,6 +23,34 @@
         (recur (merge-with min (pop q) dist) (assoc r v d)))
       r)))
 
+(defn dfs [start stop? explore]
+  (loop [explored (set)
+         frontier (conj [] start)]
+    (if (empty? frontier)
+      (throw (ex-info "no solution" {:explored       explored
+                                     :explored-count (count explored)
+                                     :frontier       frontier}))
+      (let [state    (peek frontier)
+            children (explore (update state :steps inc))]
+        (if (stop? state)
+          state
+          (recur (conj explored (:equipment state))
+                 (into (pop frontier) (remove (comp explored :equipment) children))))))))
+
+(defn bfs [start stop? explore]
+  (loop [explored #{(:equipment start)}
+         frontier (conj clojure.lang.PersistentQueue/EMPTY start)]
+    (if (empty? frontier)
+      (throw (ex-info "no solution" {:explored       explored
+                                     :explored-count (count explored)
+                                     :frontier       frontier}))
+      (let [state    (peek frontier)
+            children (explore (update state :steps inc))]
+        (if (stop? state)
+          state
+          (recur (into explored (map :equipment) children)
+                 (into (pop frontier) (remove (comp explored :equipment) children))))))))
+
 (defn string->sexpression
   [s] (read-string (str "(" s ")")))
 

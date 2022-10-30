@@ -12,3 +12,5 @@ pom.xml.asc
 /resources/.DS_Store
 .idea
 /.lsp/
+/.DS_Store
+/.clj-kondo/
