@@ -12,16 +12,16 @@
                #{}]})
 
 (def advanced-state
-  (update initial-state 0 into
+  (update-in initial-state [:equipment 0] into
           #{[:elerium :generator] [:elerium :microchip]
             [:dilithium :generator] [:dilithium :microchip]}) )
 
 (def toy-state
   {:steps     0
    :elevator  0
-   :equipment [#{[:promethium :generator] [:promethium :microchip]}
-               #{[:plutonium :generator] [:ruthenium :generator] [:cobalt :generator]}
-               #{[:plutonium :microchip] [:ruthenium :microchip] [:cobalt :microchip]}
+   :equipment [#{[:hydrogen :microchip] [:lithium :microchip]}
+               #{[:hydrogen :generator]}
+               #{[:lithium :generator]}
                #{}]})
 
 (defn map-across-vals [f m]
@@ -65,7 +65,7 @@
     (for [c          (concat (combo/combinations (vec (get equipment elevator)) 1)
                              (combo/combinations (vec (get equipment elevator)) 2))
           next-floor [(inc elevator) (dec elevator)]
-          :when      (< -1 next-floor (count equipment))]
+          :when      (<= 0 next-floor (count equipment))]
       (-> state
           (assoc :elevator next-floor)
           (update :equipment #(-> %
@@ -121,9 +121,7 @@
   (loop [explored #{(:equipment start)}
          frontier (conj clojure.lang.PersistentQueue/EMPTY start)]
     (if (empty? frontier)
-      (throw (ex-info "no solution" {:explored explored
-                                     :explored-count (count explored)
-                                     :frontier frontier}))
+      (throw (ex-info "no solution" {:explored-count (count explored)}))
       (let [state    (peek frontier)
             children (filter valid-state? (explore (update state :steps inc)))]
         (if (stop? state)
@@ -135,8 +133,8 @@
 (comment
   (time
    (println
-    (bfs initial-state
-         (fn [{:keys [steps elevator equipment]}]
+    (bfs toy-state
+         (fn [{:keys [equipment]}]
            (and (empty? (equipment 0))
                 (empty? (equipment 1))
                 (empty? (equipment 2))))
@@ -148,20 +146,13 @@
 (comment
   (time
    (println
-    (bfs goal-state
-         (fn [{:keys [steps elevator equipment]}]
-           (and
-            (= 0 elevator)
-            (= [#{[:promethium :generator] [:promethium :microchip]
-                  [:elerium :generator] [:elerium :microchip]
-                  [:dilithium :generator] [:dilithium :microchip]}
-                #{[:plutonium :generator] [:curium :generator] [:ruthenium :generator] [:cobalt :generator]}
-                #{[:plutonium :microchip] [:curium :microchip] [:ruthenium :microchip] [:cobalt :microchip]}
-                #{}]
-               equipment)))
+    (bfs initial-state
+         (fn [{:keys [equipment]}]
+           (and (empty? (equipment 0))
+                (empty? (equipment 1))
+                (empty? (equipment 2))))
          next-moves)))
                                         ;
   )
 
 (t/run-tests *ns*)
-

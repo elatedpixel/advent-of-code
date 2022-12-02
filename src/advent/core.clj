@@ -24,7 +24,7 @@
       r)))
 
 (defn dfs [start stop? explore]
-  (loop [explored (set)
+  (loop [explored #{}
          frontier (conj [] start)]
     (if (empty? frontier)
       (throw (ex-info "no solution" {:explored       explored

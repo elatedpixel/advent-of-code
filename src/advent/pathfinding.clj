@@ -91,6 +91,22 @@
               [neighbour [(first (costs neighbour)) edge-cost]]))
        (into {})))
 
+(defn graph-search [coll graph f ctx start]
+  (loop [coll (conj coll start)
+         visited #{}
+         ctx ctx]
+    (cond
+      (empty? coll) ctx
+      (visited (peek coll)) (recur (pop coll) visited ctx)
+      :else (let [curr (peek coll)
+                  node (graph curr)
+                  coll (into (pop coll) (:children node))
+                  visited (conj visited curr)
+                  ctx (f ctx node)]
+              (recur coll visited ctx)))))
+
+(def bfs (partial graph-search clojure.lang.PersistentQueue/EMPTY))
+(def dfs (partial graph-search []))
 
 (defn process-neighbour
   [parent
