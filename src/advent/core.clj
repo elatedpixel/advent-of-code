@@ -23,6 +23,13 @@
         (recur (merge-with min (pop q) dist) (assoc r v d)))
       r)))
 
+(defn distance [[y1 x1] [y2 x2]]
+  (let [dy (- y1 y2)
+        dx (- x1 x2)]
+    (Math/sqrt (+ (* dy dy) (* dx dx)))))
+
+(comment (distance [1 3] [7 3]))
+
 (defn dfs [start stop? explore]
   (loop [explored #{}
          frontier (conj [] start)]
@@ -36,7 +43,7 @@
           state
           (recur (conj explored (:equipment state))
                  (into (pop frontier) (remove (comp explored :equipment) children))))))))
-
+;; => #'advent.core/dfs;; => #'advent.core/dfs
 (defn bfs [start stop? explore]
   (loop [explored #{(:equipment start)}
          frontier (conj clojure.lang.PersistentQueue/EMPTY start)]

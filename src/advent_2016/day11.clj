@@ -24,7 +24,9 @@
                #{[:lithium :generator]}
                #{}]})
 
-(defn map-across-vals [f m]
+(defn map-across-vals
+  "assuming `m` is a map where the values are sequences, map `f` across the values for every key."
+  [f m]
   (into {} (for [[k v] m] [k (map f v)])))
 
 (t/with-test
