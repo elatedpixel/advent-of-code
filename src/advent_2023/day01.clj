@@ -40,30 +40,23 @@ zoneight234
    "eight" 8
    "nine"  9})
 
-(defn search [calibration-value]
-  (filter (partial str/includes? calibration-value) (keys digit-lookup)))
+(def part-1-parser #"(?=([0-9]{1}))")
+(def part-2-parser #"(?=([0-9]{1}|one|two|three|four|five|six|seven|eight|nine))")
 
-(defn leftmost [s]
-  (apply min-key (partial str/index-of s) (search s)))
-
-(defn rightmost [s]
-  (apply max-key (partial str/last-index-of s) (search s)))
-
-(defn parse-calibration-value [calibration-value]
-  (Integer/parseInt (str (digit-lookup (leftmost calibration-value))
-                         (digit-lookup (rightmost calibration-value)))))
+(defn calibrate [regex input]
+  (->> (re-seq regex input)             ; => (["" "two"] ["" "3"] ["" "one"])
+       ((juxt first last))              ; => (["" "two"] ["" "one"])
+       (map (comp digit-lookup second)) ; => (2 1)
+       (apply str)                      ; => "21"
+       (Integer/parseInt)))             ; => 21
 
 (defn part-1 [input]
-  (transduce (map (comp parse-calibration-value
-                        (partial re-seq #"\d"))) + input))
+  (transduce (map (partial calibrate part-1-parser)) + input))
 
 (defn part-2 [input]
-  (transduce (map parse-calibration-value) + input))
+  (transduce (map (partial calibrate part-2-parser)) + input))
 
 (test/is (= 142 (part-1 (str/split-lines (str/trim sample)))))
-
 (test/is (= 281 (part-2 (str/split-lines (str/trim sample-2)))))
-
 (test/is (= 55130 (part-1 input)))
-
 (test/is (= 54985 (part-2 input)))
