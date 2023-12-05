@@ -42,12 +42,10 @@
         scratchers
         (recur (inc i)
                (let [v (scratchers i)]
-                 (if (pos? v)
-                   (reduce
-                    (fn [m j] (update m j  (fnil + 0) (m i)))
-                    scratchers
-                    (range (inc i) (+ 1 i (matches i))))
-                   scratchers)))))))
+                 (if (pos? v) (reduce (fn [m j] (update m j  (fnil + 0) (m i)))
+                                      scratchers
+                                      (range (inc i) (+ 1 i (matches i))))
+                     scratchers)))))))
 
 (defn part-2 [input]
   (reduce + (vals (scratchcards input))))
