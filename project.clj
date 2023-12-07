@@ -3,7 +3,7 @@
   :url "https://github.com/elatedpixel/advent-of-code"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/test.check "0.9.0"]
                  [org.clojure/math.combinatorics "0.1.6"]
                  [org.clojure/core.async "1.2.603"]
