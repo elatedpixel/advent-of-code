@@ -25,14 +25,12 @@
   (transduce
    (map-indexed (fn [rank card] (* (inc rank) (:bid card))))
    +
-   #dbg (sort-by (juxt :rank :hand) camel-cards)))
+   (sort-by (juxt :rank :hand) camel-cards)))
 
 (defn- part-1
   [input]
   (total-winnings (camel-cards input)))
 
 (test/deftest test-part-1
-  (test/is (= 6440 (part-1 sample))))
-
-(part-1 input)
-;; => 251121738
+  (test/is (= 6440 (part-1 sample)))
+  (test/is (= 251121738 (part-1 input))))
