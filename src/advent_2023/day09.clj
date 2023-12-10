@@ -33,9 +33,6 @@
 (defn- predict [history]
   (transduce (map last) + (differences history)))
 
-(differences [10 11 3 -24 -79 -164 -268 -361 -388 -263 137 978 2475 4898 8578 13913 21374 31511 44959 62444 84789])
-;; => 112920
-
 (defn- extrapolated-sum
   [report]
   (transduce
