@@ -8,62 +8,67 @@
 (def input (str/trim (slurp (io/resource "2023/day05"))))
 (def sample (str/trim (slurp (io/resource "2023/day05.sample"))))
 
-(defn- to-ints
-  [s]
-  (mapv read-string (re-seq #"\d+" s)))
+(defn- parse-ints [s] (mapv parse-long (re-seq #"\d+" s)))
 
-(defn- range*
-  "we need to use this like a pair in a `cond` statement, returns (pred fn)"
-  [[dst src len]]
-  (list
-   (fn [n] (<= src n (dec (+ len src))))
-   (fn [n] (+ n (- dst src)))))
+(defn- offset [[dst src len]] [src (+ src len -1) (- dst src)])
 
-(defn- lookup [r]
-  (fn [x] (reduce
-           (fn [x [pred f]] (if (pred x) (reduced (f x)) x))
-           x
-           (partition 2 r))))
+(defn- parse-rule [[header & ranges]]
+  (let [[_ source target] (re-find #"^(\w+)-to-(\w+)" header)]
+    [source [target (sort (map (comp offset parse-ints) ranges))]]))
 
-(defn- resolve* [m]
-  (comp
-   (lookup (:humidity-to-location m))
-   (lookup (:temperature-to-humidity m))
-   (lookup (:light-to-temperature m))
-   (lookup (:water-to-light m))
-   (lookup (:fertilizer-to-water m))
-   (lookup (:soil-to-fertilizer m))
-   (lookup (:seed-to-soil m))))
-;; Seed 13, soil 13, fertilizer 52, water 41, light 34, temperature 34, humidity 35, location 35.
+(defn- almanac [input]
+  (let [[seed-str & rules-str] (str/split input #"\n\n")]
+    {:seeds (parse-ints seed-str)
+     :rules (into {} (map (comp parse-rule str/split-lines)) rules-str)}))
 
-(defn- parse [input]
-  (let [sections (str/split input #"\n\n")]
-    (reduce
-     (fn [m s]
-       (cond
-         (.startsWith s "seeds")
-         (assoc m :seeds (to-ints s))
+(defn- shift [v dx]
+  (mapv (partial + dx) v))
 
-         :else
-         (let [[name-str & ranges-str] (str/split-lines s)
-               name                    (keyword (re-find #"[\w-]+" name-str))
-               ranges                  (mapcat (comp range* to-ints) ranges-str)]
-           (assoc m name ranges))))
-     {}
-     sections)))
+(defn split-range-and-shift [[a b :as i] [c d delta]]
+  (cond
+    (and (< a c) (< d b))           [[a (dec c)] (shift [c d] delta) [(inc d) b]] ;; inside
+    (and (< a c) (<= c b) (<= b d)) [[a (dec c)] (shift [c b] delta)] ;; right overlap
+    (and (<= c a) (<= a d) (< d b)) [(shift [a d] delta) [(inc d) b]] ;; left overlap
+    (and (<= c a) (<= b d))         [(shift i delta)] ;; covering
+    :else                           [i])) ;; outside
+
+(defn split-by-rule [rules seed]
+  (reduce
+   (fn [[[_ b :as curr] & rst] [_ d :as rule]]
+     (let [seeds' (into rst (split-range-and-shift curr rule))]
+       (if (>= d b)
+         (reduced seeds')
+         seeds')))
+   (list seed)
+   rules))
+
+(defn process-rule [rules [name seeds]]
+  (if (= "location" name)
+    (apply min (flatten seeds))
+    (let [[target rule] (rules name)]
+      (recur rules [target (mapcat (partial split-by-rule rule) seeds)]))))
+
+(defn find-location [{:keys [seeds rules]} seed-fn]
+  (process-rule rules ["seed" (seed-fn seeds)]))
+
+(defn- seeds-silver [seeds]
+  (mapv vector seeds seeds))
+
+(defn- seeds-gold [seeds]
+  (mapv (fn [[a b]] [a (+ a b -1)])
+        (partition 2 seeds)))
 
 (defn part-1 [input]
-  (let [almanac (parse input)]
-    (apply min (map (resolve* almanac) (:seeds almanac)))))
-
-(criterium/quick-bench (part-1 input))
-;; => 600279879
-;; Evaluation count : 120 in 6 samples of 20 calls.
-;;              Execution time mean : 5.565616 ms
-;;     Execution time std-deviation : 227.994195 µs
-;;    Execution time lower quantile : 5.317659 ms ( 2.5%)
-;;    Execution time upper quantile : 5.791945 ms (97.5%)
-;;                    Overhead used : 16.002083 ns
+  (find-location (almanac input) seeds-silver))
 
 (test/deftest part1
-  (test/is (= 35 (part-1 sample))))
+  (test/is (= 35 (part-1 sample)))
+  (test/is (= 600279879 (part-1 input))))
+
+(defn part-2 [input]
+  (find-location (almanac input) seeds-gold))
+
+(test/deftest part2
+  (test/is (= 46 (part-2 sample)))
+  (test/is (= 20191102 (part-2 input))))
+
