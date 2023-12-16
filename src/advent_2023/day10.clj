@@ -96,5 +96,8 @@
   (test/is (= 8 (apply max (vals (part-1 sample)))))
   (test/is (= 6613 (apply max (vals (part-1 input))))))
 
-(defn -main []
-  (draw (part-1 input)))
+(defn- part-2 [input]
+  (let [maze  (pipe-maze input)
+        steps (explore maze (:start maze))]
+    ;; TODO: count area of maze bounded by pipes
+    4))

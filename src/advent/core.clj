@@ -1,6 +1,20 @@
 (ns advent.core
-  (:require [clojure.java.io :as io]
-            [clojure.data.priority-map :refer [priority-map]]))
+  (:require
+   [clojure.data.priority-map :refer [priority-map]]
+   [clojure.java.io :as io]
+   [clojure.string :as str]))
+
+(defn file
+  ([year day] (format "%d/day%02d" year day))
+  ([year day suffix] (str (file year day) suffix)))
+
+(def read-file (comp slurp io/resource))
+
+(defn read-lines [file]
+  (str/split-lines (read-file file)))
+
+(defn read-paragraphs [file]
+  (str/split (read-file file) #"\n\n"))
 
 (defn load-input [year day & [{:keys [test]}]]
   (cond-> (format "%d/day%02d" year day)
