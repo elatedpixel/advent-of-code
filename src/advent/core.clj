@@ -16,6 +16,11 @@
 (defn read-paragraphs [file]
   (str/split (read-file file) #"\n\n"))
 
+(defn read-grid [file]
+  (into {} (for [[i row] (map-indexed vector (read-lines file))
+                 [j col] (map-indexed vector row)]
+             [[i j] col])))
+
 (defn load-input [year day & [{:keys [test]}]]
   (cond-> (format "%d/day%02d" year day)
     (some? test) (str "-test")
