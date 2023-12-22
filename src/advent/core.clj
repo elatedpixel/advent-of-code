@@ -10,11 +10,13 @@
 
 (def read-file (comp slurp io/resource))
 
-(defn read-lines [file]
-  (str/split-lines (read-file file)))
+(defn read-lines
+  ([file] (read-lines file (map identity)))
+  ([file xf] (sequence xf (str/split-lines (read-file file)))))
 
-(defn read-paragraphs [file]
-  (str/split (read-file file) #"\n\n"))
+(defn read-paragraphs
+  ([file] (read-paragraphs file (map identity)))
+  ([file xf] (sequence xf (str/split (read-file file) #"\n\n"))))
 
 (defn read-grid
   ([file]
