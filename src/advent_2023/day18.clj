@@ -83,5 +83,5 @@
 (test/deftest test-part-1
   (test/is (= 62 (part-1 sample))))
 
-(part-1 input)
+;; (part-1 input)
 ;; => 65309
