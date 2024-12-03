@@ -2,24 +2,23 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
+(defonce input (line-seq (io/reader (io/resource "2024/day01.txt"))))
+
 (defn- delta-abs [a b]
   (if (< a b) (- b a) (- a b)))
 
+(defn- parse-lists [lists-strings]
+  (->> lists-strings
+       (map (fn [s] (read-string (format "(%s)" s))))
+       (apply mapv (comp sort vector))))
+
 (defn -main []
-  (let [input     (slurp (io/resource "2024/day01.txt"))
-        distances (reduce
-                   (fn [distances lists-string]
-                     (let [[a b] (str/split lists-string #"\s+")]
-                       (-> distances
-                           (update :left conj (parse-long a))
-                           (update :right conj (parse-long b)))))
-                   {}
-                   (str/split-lines input))]
+  (let [lists (parse-lists input)]
+    ;; part 1, sum delta between two sorted lists
     (println
-     (reduce #'+ (map delta-abs
-                      (sort (:left distances))
-                      (sort (:right distances)))))
+     (reduce #'+ (apply map delta-abs lists)))
+
+    ;; part 2, for each element `n` in the left list, multiply `n` by it's occurrences in the right list, and sum
     (println
-     (let [occurrences (frequencies (:right distances))]
-       ;; for each element `n` in the left list, multiply `n` by it's occurrences in the right list, and sum
-       (transduce (map (fn [n] (* n (get occurrences n 0)))) #'+ 0 (:left distances))))))
+     (let [occurrences (frequencies (second lists))]
+       (transduce (map (fn [n] (* n (get occurrences n 0)))) #'+ 0 (first lists))))))
