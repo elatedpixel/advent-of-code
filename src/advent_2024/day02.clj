@@ -2,16 +2,12 @@
   (:require
    [clojure.java.io :as io]))
 
-(defn- deltas [report]
-  (mapv (fn [[a b]] (- a b)) (partition 2 1 report)))
-
 (defn- safe?
-  "A report is safe iff: the reports are only increasing or decreasing, the delta between levels is [1, 3]"
+  "A report is safe iff: the reports are only increasing or decreasing, the delta between levels is [1, 3]."
   [report]
-  (let [d (deltas report)]
-    (and (or (every? pos? d)
-             (every? neg? d))
-         (every? (fn [n] (<= 1 (if (neg? n) (* n -1) n) 3)) d))))
+  (and (or (every? true? (map > report (rest report)))
+           (every? true? (map < report (rest report))))
+       (every? #(<= 1 (abs %) 3) (map - report (rest report)))))
 
 (defn- without-index [v]
   (fn [i] (into (subvec v 0 i)
