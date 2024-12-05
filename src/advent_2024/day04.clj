@@ -27,7 +27,7 @@
           offsets-list)))
 
 ;; count occurrences of "XMAS" in word-search grid
-(defn part1 [input]
+(defn part-1 [input]
   (let [grid (word-search input)
         offsets-list [[[0 0] [0 -1] [0 -2] [0 -3]]
                       [[0 0] [1 -1] [2 -2] [3 -3]]
@@ -40,9 +40,9 @@
     ((frequencies (mapcat (neighbors grid offsets-list) (keys grid))) "XMAS")))
 
 (t/deftest test-part1
-  (t/is (= 18 (part1 sample0))))
+  (t/is (= 18 (part-1 sample0))))
 
-(defn part2 [input]
+(defn part-2 [input]
   (let [grid (word-search input)
         offsets-list [[[-1 -1] [0 0] [1 1]]
                       [[-1 1] [0 0] [1 -1]]]]
@@ -56,7 +56,7 @@
                (keys grid)))))
 
 (t/deftest test-part2
-  (t/is (= 9 (part2 sample0))))
+  (t/is (= 9 (part-2 sample0))))
 
 (defn -main []
   (println (str "Day 4 Part 1: " (part1 puzzle)))
