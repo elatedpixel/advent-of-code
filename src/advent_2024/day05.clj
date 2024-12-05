@@ -51,11 +51,34 @@
      +
      (eduction
       (filter (ordered? rules))
-      #dbg (map (fn [update] (get update (long (/ (count update) 2)))))
+      (map (fn [update] (get update (long (/ (count update) 2)))))
       updates))))
 
 (t/deftest test-part-1
   (t/is (= 143 (part-1 sample0))))
 
+(defn- ordered-compare [rules]
+  (fn [a b]
+    (cond
+      (some #{b} (rules a)) 1
+      (some #{a} (rules b)) -1
+      :otherwise            0)))
+
+(defn part-2
+  "For each incorrectly-ordered update, fix according to rules, return sum of middle value."
+  [input]
+  (let [[rules updates] (parse input)
+        incorrect       (filter (complement (ordered? rules)) updates)]
+    (reduce
+      +
+      (eduction
+        (map #(sort (ordered-compare rules) %))
+        (map (fn [update] (nth update (long (/ (count update) 2)))))
+        incorrect))))
+
+(t/deftest test-part-2
+  (t/is (= 123 (part-2 sample0))))
+
 (defn -main []
-  (println (str "Day 5 Part 1: " (part-1 puzzle))))
+  (println (str "Day 5 Part 1: " (part-1 puzzle)))
+  (println (str "Day 5 Part 2: " (part-2 puzzle))))
