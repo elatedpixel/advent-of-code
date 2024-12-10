@@ -69,47 +69,30 @@
           b (nth fs j)]
       (cond
         ;; finished
-        (zero? id)
-
-        (mapv first fs)
-
+        (zero? id)                        (mapv first fs)
         ;; search is over, next id
-        (> i j)
-
-        (recur 0 (- j 1) (dec id) fs)
-
+        (> i j)                           (recur 0 (- j 1) (dec id) fs)
         ;; left index is file
-        (number? (first a))
-
-        (recur (inc i) j id fs)
-
+        (number? (first a))               (recur (inc i) j id fs)
         ;; freespace or id we've already checked
         (or (not (number? (first b)))
-            (< id (first b)))
-
-        (recur i (- j 1) id fs)
-
+            (< id (first b)))             (recur i (- j 1) id fs)
         ;; room to move entire block?
         (not-every?
           #(= \. (first %))
-          (subvec fs i (+ i (second b))))
-
-        (recur (inc i) j id fs)
-
+          (subvec fs i (+ i (second b)))) (recur (inc i) j id fs)
         ;; move file block
-        :else
-
-        (recur
-          0
-          (- j (second b))
-          (dec id)
-          (reduce
-            (fn [fs offset]
-              (-> fs
-                  (assoc (+ i offset) (nth fs (- j offset)))
-                  (assoc (- j offset) (nth fs (+ i offset)))))
-            fs
-            (range (second b))))))))
+        :else                             (recur
+                                            0
+                                            (- j (second b))
+                                            (dec id)
+                                            (reduce
+                                              (fn [fs offset]
+                                                (-> fs
+                                                    (assoc (+ i offset) (nth fs (- j offset)))
+                                                    (assoc (- j offset) (nth fs (+ i offset)))))
+                                              fs
+                                              (range (second b))))))))
 
 (defn- checksum
   [filesystem]
