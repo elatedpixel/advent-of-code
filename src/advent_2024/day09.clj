@@ -65,11 +65,20 @@
     (let [a (nth fs i)
           b (nth fs j)]
       (cond
-        (> i j)                   fs
+        (> i j)                   (mapv first fs)
         (number? (first a))       (recur (inc i) j fs)
         (not (number? (first b))) (recur i (dec j) fs)
         (< (second a) (second b)) (recur i (- j (second b)) fs)
-        :else                     (magically-swap-the-whole-file-into-freespace-block)))))
+        :else                     (recur
+                                    (+ i (second b))
+                                    (- j (second b))
+                                    (reduce
+                                     (fn [fs offset]
+                                       (-> fs
+                                           (assoc (+ i offset) (nth fs (- j offset)))
+                                           (assoc (- j offset) (nth fs (+ i offset)))))
+                                     fs
+                                     (range (second b))))))))
 
 (defn- checksum
   [filesystem]
@@ -95,7 +104,11 @@
 (t/deftest test-part-1
   (t/is (= 1928 (part-1 sample0))))
 
-(defn part-2 [puzzle] 0)
+(defn part-2 [puzzle]
+  (-> puzzle
+      parse
+      defrag-files
+      checksum))
 
 (t/deftest test-part-2
   (t/is (= 2858 (part-2 sample0))))
