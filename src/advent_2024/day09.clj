@@ -17,17 +17,17 @@
 
 (defn- parse [input]
   (mapcat
-    (fn [id [files freespace]]
-      (concat
-        (let [n (parse-long (str files))]
-          (repeat n [id n]))
-        (if (or (nil? freespace)
-                (= \newline freespace))
-          '()
-          (let [n (parse-long (str freespace))]
-            (repeat n [\. n])))))
-    (range)
-    (partition-all 2 input)))
+   (fn [id [files freespace]]
+     (concat
+      (let [n (parse-long (str files))]
+        (repeat n [id n]))
+      (if (or (nil? freespace)
+              (= \newline freespace))
+        '()
+        (let [n (parse-long (str freespace))]
+          (repeat n [\. n])))))
+   (range)
+   (partition-all 2 input)))
 
 (comment
   (parse sample0)
@@ -61,34 +61,65 @@
   [filesystem]
   (loop [i  0
          j  (dec (count filesystem))
+         id (apply max (sequence (comp (map first)
+                                       (filter number?))
+                                 filesystem))
          fs (vec filesystem)]
     (let [a (nth fs i)
           b (nth fs j)]
       (cond
-        (> i j)                   (mapv first fs)
-        (number? (first a))       (recur (inc i) j fs)
-        (not (number? (first b))) (recur i (dec j) fs)
-        (< (second a) (second b)) (recur i (- j (second b)) fs)
-        :else                     (recur
-                                    (+ i (second b))
-                                    (- j (second b))
-                                    (reduce
-                                     (fn [fs offset]
-                                       (-> fs
-                                           (assoc (+ i offset) (nth fs (- j offset)))
-                                           (assoc (- j offset) (nth fs (+ i offset)))))
-                                     fs
-                                     (range (second b))))))))
+        ;; finished
+        (zero? id)
+
+        (mapv first fs)
+
+        ;; search is over, next id
+        (> i j)
+
+        (recur 0 (- j 1) (dec id) fs)
+
+        ;; left index is file
+        (number? (first a))
+
+        (recur (inc i) j id fs)
+
+        ;; freespace or id we've already checked
+        (or (not (number? (first b)))
+            (< id (first b)))
+
+        (recur i (- j 1) id fs)
+
+        ;; room to move entire block?
+        (not-every?
+          #(= \. (first %))
+          (subvec fs i (+ i (second b))))
+
+        (recur (inc i) j id fs)
+
+        ;; move file block
+        :else
+
+        (recur
+          0
+          (- j (second b))
+          (dec id)
+          (reduce
+            (fn [fs offset]
+              (-> fs
+                  (assoc (+ i offset) (nth fs (- j offset)))
+                  (assoc (- j offset) (nth fs (+ i offset)))))
+            fs
+            (range (second b))))))))
 
 (defn- checksum
   [filesystem]
   (reduce-kv
-    (fn [result index id]
-      (if (not (number? id))
-        result
-        (+ result (* index id))))
-    0
-    filesystem))
+   (fn [result index id]
+     (if (not (number? id))
+       result
+       (+ result (* index id))))
+   0
+   filesystem))
 
 (comment
   (checksum (defrag (parse sample0)))
@@ -114,4 +145,10 @@
   (t/is (= 2858 (part-2 sample0))))
 
 (defn -main []
-  (println (str "Day 9 Part 1: " (part-1 puzzle))))
+  (println (str "Day 9 Part 1: " (part-1 puzzle)))
+  (println (str "Day 9 Part 2: " (part-2 puzzle))))
+
+(comment
+  (defrag-files (parse sample0))
+;; => [0 0 9 9 2 1 1 1 7 7 7 \. 4 4 \. 3 3 3 \. \. \. \. 5 5 5 5 \. 6 6 6 6 \. \. \. \. \. 8 8 8 8 \. \.]
+  )
