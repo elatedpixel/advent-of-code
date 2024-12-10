@@ -48,6 +48,7 @@
   )
 
 (defn- trailhead-scores
+  "Score = unique elevation 9 destinations."
   [trails]
   (reduce
     +
@@ -55,6 +56,7 @@
          trails)))
 
 (defn- trailhead-ratings
+  "Rating = unique paths that reach elevation 9."
   [trails]
   (reduce
     +
