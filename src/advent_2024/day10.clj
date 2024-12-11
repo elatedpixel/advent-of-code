@@ -13,55 +13,54 @@
   "Build data structures for puzzle: list of trailheads and topographical map."
   [input]
   (reduce-kv
-    (fn [m y row]
-      (reduce-kv
-        (fn [m x height-string]
-          (let [height (Character/getNumericValue height-string)]
-            (cond-> m
-              (zero? height) (update :trailheads conj [x y])
-              :always        (assoc-in [:topography [x y]] height))))
-        m
-        (vec row)))
-    {:trailheads []
-     :topography {}}
+   (fn [m y row]
+     (reduce-kv
+      (fn [m x height-string]
+        (let [height (Character/getNumericValue height-string)]
+          (cond-> m
+            (zero? height) (update :trailheads conj [x y])
+            :always        (assoc-in [:topography [x y]] height))))
+      m
+      (vec row)))
+   {:trailheads []
+    :topography {}}
    (vec input)))
 
 (defn- trails
   "Returns map[trailhead][]trails."
   [{:keys [trailheads topography]}]
   (letfn
-      [(good-hiking [node]
-         (let [height (get topography node)]
-           (filter (fn [coord] (= 1 (- (get topography coord height) height)))
-                   (map #(mapv + node %) '([-1 0] [1 0] [0 1] [0 -1])))))
-       (trails [node explored]
-         (cond (explored node)         '(())
-               (= 9 (topography node)) [[node]]
-               :else                   (mapcat
-                                         (fn [next-coord]
-                                           (map (fn [trail] (cons node trail))
-                                                (trails next-coord (conj explored node))))
-                                         (remove explored (good-hiking node)))))]
+   [(good-hiking [node]
+      (let [height (get topography node)]
+        (filter (fn [coord] (= 1 (- (get topography coord height) height)))
+                (map #(mapv + node %) '([-1 0] [1 0] [0 1] [0 -1])))))
+    (trails [node explored]
+      (cond (explored node)         '(())
+            (= 9 (topography node)) [[node]]
+            :else                   (mapcat
+                                      (fn [next-coord]
+                                        (map (fn [trail] (cons node trail))
+                                             (trails next-coord (conj explored node))))
+                                      (remove explored (good-hiking node)))))]
     (into {}
           (for [trailhead trailheads]
-               [trailhead (trails trailhead #{})])))
-  )
+            [trailhead (trails trailhead #{})]))))
 
 (defn- trailhead-scores
   "Score = unique elevation 9 destinations."
   [trails]
   (reduce
-    +
-    (map (fn [[k v]] (count (distinct (map last v))))
-         trails)))
+   +
+   (map (fn [[k v]] (count (distinct (map last v))))
+        trails)))
 
 (defn- trailhead-ratings
   "Rating = unique paths that reach elevation 9."
   [trails]
   (reduce
-    +
-    (map (fn [[k v]] (count (distinct v)))
-         trails)))
+   +
+   (map (fn [[k v]] (count (distinct v)))
+        trails)))
 
 (comment
   ((trails (parse sample0)) [2 0])
@@ -103,5 +102,5 @@
   (t/is (= 81 (part-1 sample0))))
 
 (defn -main []
-  (println (str "Day 10 Part 1: " (part-1 puzzle)))
-  (println (str "Day 10 Part 2: " (part-2 puzzle))))
+  (println (time (str "Day 10 Part 1: " (part-1 puzzle))))
+  (println (time (str "Day 10 Part 2: " (part-2 puzzle)))))
