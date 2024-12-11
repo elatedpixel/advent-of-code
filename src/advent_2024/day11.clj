@@ -29,6 +29,7 @@
 
 (defn- blink
   ([stones]
+   "multiset impl of stones state."
    (reduce
      (fn [m [k v]]
        (reduce (fn [m k']
@@ -57,5 +58,5 @@
   (t/is (= 55312 (part-1 sample1))))
 
 (defn -main []
-  (println (str "Day 11 Part 1: " (part-1 puzzle)))
-  (println (str "Day 11 Part 2: " (part-2 puzzle))))
+  (println (time (str "Day 11 Part 1: " (part-1 puzzle))))
+  (println (time (str "Day 11 Part 2: " (part-2 puzzle)))))
